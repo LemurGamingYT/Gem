@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "tinycthread.h": "c",
-        "builtins.h": "c"
+        "builtins.h": "c",
+        "math.h": "c"
     }
 }

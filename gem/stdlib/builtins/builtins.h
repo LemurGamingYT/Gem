@@ -115,22 +115,6 @@ string string_at(string s, int index);
 string iter_string(string s, int index);
 
 
-// @public @property @static
-float Math_pi(void);
-
-// @public @method @static
-float Math_abs(float x);
-
-// @public @method @static
-float Math_sin(float x);
-
-// @public @method @static
-float Math_cos(float x);
-
-// @public @method @static
-float Math_tan(float x);
-
-
 void geminit(int argc, i8** argv);
 void gemexit(void);
 void* gemalloc(u64 size);
