@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Programming\Python\Gem\c_testing\GLFW+OpenGL\CMakeFiles\3dddddf8dc14ced2b23fffd88c2dbed4\uninstall.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Programming\Python\Gem\c_testing\GLFW+OpenGL\glfw\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Programming\Python\Gem\c_testing\GLFW+OpenGL\glfw\CMakeFiles\uninstall" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{4FBB825D-7AE5-315E-AC03-1417AE1DB839}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

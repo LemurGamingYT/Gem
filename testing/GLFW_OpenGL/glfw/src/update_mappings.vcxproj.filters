@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Programming\Python\Gem\c_testing\GLFW+OpenGL\CMakeFiles\7a485980d14d6a5f0eee33b0cc56c086\update_mappings.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Programming\Python\Gem\c_testing\GLFW+OpenGL\glfw\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Programming\Python\Gem\c_testing\GLFW+OpenGL\glfw\src\mappings.h.in">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="C:\Programming\Python\Gem\c_testing\GLFW+OpenGL\glfw\CMake\GenerateMappings.cmake" />
+    <None Include="C:\Programming\Python\Gem\c_testing\GLFW+OpenGL\glfw\src\CMakeFiles\update_mappings" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{4FBB825D-7AE5-315E-AC03-1417AE1DB839}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{B221767C-3F3D-338A-80FF-1CBF212D7739}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

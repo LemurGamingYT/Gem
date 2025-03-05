@@ -1,0 +1,10 @@
+^C:\PROGRAMMING\PYTHON\GEM\C_TESTING\GLFW+OPENGL\GLFW\SRC\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Programming/Python/Gem/c_testing/GLFW+OpenGL -BC:/Programming/Python/Gem/c_testing/GLFW+OpenGL --check-stamp-file C:/Programming/Python/Gem/c_testing/GLFW+OpenGL/glfw/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
