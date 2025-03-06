@@ -91,7 +91,11 @@ float int_to_float(int i);
 
 void error(const i8* msg);
 
+// @public
 string input(void);
+
+// @public @overload(input)
+string input_prompt(string prompt);
 
 
 string make_string(i8* str, const u64 len);

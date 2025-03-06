@@ -36,6 +36,11 @@ string input(void) {
     return make_string("", 0);
 }
 
+string input_prompt(string prompt) {
+    printf("%s", prompt.buf);
+    return input();
+}
+
 void geminit(int argc, i8** argv) {
 #if OS_WINDOWS
     SetConsoleOutputCP(CP_UTF8);

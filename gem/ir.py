@@ -242,25 +242,37 @@ class CallContext:
 
         self._param_arg_map = {}
     
-    def invoke(self):
-        if len(self.args) > len(self.params):
-            self.pos.comptime_error(self.scope, 'too many arguments')
-        elif len(self.args) < len(self.params):
-            self.pos.comptime_error(self.scope, 'too few arguments')
+    def _invoke_function(self, func: 'Function'):
+        if len(self.args) != len(func.params):
+            return False
         
-        for param, arg in zip(self.params, self.args):
+        for param, arg in zip(func.params, self.args):
             if param.type != arg.type and str(param.type) != 'any':
-                arg.pos.comptime_error(
+                return False
+        
+        return True
+    
+    def invoke(self):
+        func = self.func
+        if not self._invoke_function(func):
+            for overload in func.overloads:
+                if self._invoke_function(overload):
+                    func = overload
+                    break
+            else:
+                arg_types = ', '.join(str(arg.type) for arg in self.args)
+                self.pos.comptime_error(
                     self.scope,
-                    f'expected type \'{param.type}\', got type \'{arg.type}\''
+                    f'no matching overload for function \'{func.name}\' with types {arg_types}'
                 )
-            
+        
+        for param, arg in zip(func.params, self.args):
             self._param_arg_map[param.name] = arg
         
-        if self.func.callable is not None:
-            return self.func.callable(self)
+        if func.callable is not None:
+            return func.callable(self)
 
-        return Call(self.pos, self.ret_type, self.func.name, self.args)
+        return Call(self.pos, func.type, func.name, self.args)
     
     def call(self, name: str, args: list['Node']):
         ctx = CallContext.from_name(self.pos, self.scope, name, args)
@@ -375,6 +387,7 @@ class Function(Node):
     
     def __post_init__(self):
         self.generic_types = []
+        self.overloads = []
 
         self.apply_self_as_parent(self.params)
         self.apply_self_as_parent(self.body)

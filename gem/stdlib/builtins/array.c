@@ -27,7 +27,6 @@ nil free_array(array* a) {
 
 int array_length(array a) { return a.len; }
 int array_capacity(array a) { return a.cap; }
-
 nil array_reserve(array* a, int new_cap) {
     if (new_cap <= a->cap)
         return NULL;

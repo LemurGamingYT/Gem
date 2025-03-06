@@ -68,6 +68,16 @@ class GemCParser:
             Body(pos, self.scope.get_type('nil')),
             flags=flags
         )
+        for flag in comment_flags:
+            if flag.startswith('overload('):
+                func_name = flag.removeprefix('overload(').removesuffix(')')
+                f = self.scope.get_env(func_name)
+                if f is None or f.value is None:
+                    print(f'unknown function {func_name}')
+                    return
+                
+                f.value.overloads.append(func)
+                return
         
         self.scope.set_env(EnvItem(node.spelling, self.scope.get_type('function'), func))
 

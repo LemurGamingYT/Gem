@@ -14,9 +14,8 @@ nil Ref_inc(Ref* ref) {
 
 nil Ref_dec(Ref* ref) {
     ref->ref_count--;
-    if (ref->ref_count == 0) {
+    if (ref->ref_count == 0)
         gemfree(ref->ptr);
-    }
 
     return NULL;
 }

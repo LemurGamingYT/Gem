@@ -30,7 +30,6 @@ string System_cwd(void) {
 
 nil System_exit(int code) {
     exit(code);
-    return NULL;
 }
 
 int System_shell(string command) { return system(command.buf); }
