@@ -1,0 +1,145 @@
+main.py (line 11) [INFO] - Bundle v0.0.1
+main.py (line 12) [INFO] - Backend: llvmlite/LLVM
+main.py (line 13) [INFO] - Target: x86_64-pc-windows-msvc
+__init__.py (line 25) [INFO] - Parsed Program:
+use "core"
+fn main() -> int {
+any s = "Hello world"
+return 0
+}
+analyser.py (line 72) [INFO] - Declared intrinsic panic
+analyser.py (line 72) [INFO] - Declared intrinsic __is_null
+analyser.py (line 72) [INFO] - Declared intrinsic __buffer
+analyser.py (line 72) [INFO] - Declared intrinsic __create_string
+analyser.py (line 72) [INFO] - Declared intrinsic __alloc
+analyser.py (line 72) [INFO] - Declared intrinsic __free
+analyser.py (line 72) [INFO] - Declared intrinsic __memcpy
+analyser.py (line 72) [INFO] - Declared intrinsic __format_int
+analyser.py (line 72) [INFO] - Declared intrinsic __format_float
+analyser.py (line 72) [INFO] - Declared intrinsic __print_pointer
+analyser.py (line 72) [INFO] - Declared intrinsic __add_ints
+analyser.py (line 72) [INFO] - Declared intrinsic panic
+analyser.py (line 72) [INFO] - Declared intrinsic __is_null
+analyser.py (line 72) [INFO] - Declared intrinsic __buffer
+analyser.py (line 72) [INFO] - Declared intrinsic __create_string
+analyser.py (line 72) [INFO] - Declared intrinsic __alloc
+analyser.py (line 72) [INFO] - Declared intrinsic __free
+analyser.py (line 72) [INFO] - Declared intrinsic __memcpy
+analyser.py (line 72) [INFO] - Declared intrinsic __format_int
+analyser.py (line 72) [INFO] - Declared intrinsic __format_float
+analyser.py (line 72) [INFO] - Declared intrinsic __print_pointer
+analyser.py (line 72) [INFO] - Declared intrinsic __add_ints
+analyser.py (line 230) [INFO] - Checking if __add_ints's arguments match
+analyser.py (line 230) [INFO] - Checking if __alloc's arguments match
+analyser.py (line 230) [INFO] - Checking if __memcpy's arguments match
+analyser.py (line 230) [INFO] - Checking if __create_string's arguments match
+analyser.py (line 230) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 230) [INFO] - Checking if __format_int's arguments match
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+analyser.py (line 230) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 230) [INFO] - Checking if __format_float's arguments match
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+analyser.py (line 172) [INFO] - Imported gem library core
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+__init__.py (line 28) [INFO] - Analysed Program:
+use "core"
+fn main() -> int {
+string s = string.new(str_lit("Hello world"), 11)
+return 0
+}
+c_registry.py (line 73) [INFO] - Registered C function 'malloc'
+c_registry.py (line 73) [INFO] - Registered C function 'calloc'
+c_registry.py (line 73) [INFO] - Registered C function 'realloc'
+c_registry.py (line 73) [INFO] - Registered C function 'free'
+c_registry.py (line 73) [INFO] - Registered C function 'memcpy'
+c_registry.py (line 73) [INFO] - Registered C function 'puts'
+c_registry.py (line 73) [INFO] - Registered C function 'exit'
+c_registry.py (line 73) [INFO] - Registered C function 'snprintf'
+__init__.py (line 25) [INFO] - Parsed Program:
+use "core"
+fn string.new(pointer ptr, int length) -> string {
+any ptr_copy = __alloc(__add_ints(length, 1))
+__memcpy(ptr_copy, ptr, length, False)
+return __create_string(ptr_copy, length)
+}
+fn int.to_string(int i) -> string {
+any buf = __buffer(16)
+any length = __format_int(buf, 16, i)
+return new string(buf, length)
+}
+fn float.to_string(float f) -> string {
+any buf = __buffer(64)
+any length = __format_float(buf, 64, f)
+return new string(buf, length)
+}
+fn string.to_string(string s) -> string {
+return s
+}
+fn bool.to_string(bool b) -> string {
+return "true" if b else "false"
+}
+analyser.py (line 72) [INFO] - Declared intrinsic panic
+analyser.py (line 72) [INFO] - Declared intrinsic __is_null
+analyser.py (line 72) [INFO] - Declared intrinsic __buffer
+analyser.py (line 72) [INFO] - Declared intrinsic __create_string
+analyser.py (line 72) [INFO] - Declared intrinsic __alloc
+analyser.py (line 72) [INFO] - Declared intrinsic __free
+analyser.py (line 72) [INFO] - Declared intrinsic __memcpy
+analyser.py (line 72) [INFO] - Declared intrinsic __format_int
+analyser.py (line 72) [INFO] - Declared intrinsic __format_float
+analyser.py (line 72) [INFO] - Declared intrinsic __print_pointer
+analyser.py (line 72) [INFO] - Declared intrinsic __add_ints
+analyser.py (line 230) [INFO] - Checking if __add_ints's arguments match
+analyser.py (line 230) [INFO] - Checking if __alloc's arguments match
+analyser.py (line 230) [INFO] - Checking if __memcpy's arguments match
+analyser.py (line 230) [INFO] - Checking if __create_string's arguments match
+analyser.py (line 230) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 230) [INFO] - Checking if __format_int's arguments match
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+analyser.py (line 230) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 230) [INFO] - Checking if __format_float's arguments match
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+analyser.py (line 230) [INFO] - Checking if new's arguments match
+__init__.py (line 28) [INFO] - Analysed Program:
+use "core"
+static fn string.new(pointer ptr, int length) -> string {
+pointer ptr_copy = __alloc(__add_ints(length, 1))
+__memcpy(ptr_copy, ptr, length, False)
+return __create_string(ptr_copy, length)
+}
+static fn int.to_string(int i) -> string {
+pointer buf = __buffer(16)
+int length = __format_int(buf, 16, i)
+return string.new(buf, length)
+}
+static fn float.to_string(float f) -> string {
+pointer buf = __buffer(64)
+int length = __format_float(buf, 64, f)
+return string.new(buf, length)
+}
+static fn string.to_string(string s) -> string {
+return s
+}
+static fn bool.to_string(bool b) -> string {
+return string.new(str_lit("true"), 4) if b else string.new(str_lit("false"), 5)
+}
+c_registry.py (line 73) [INFO] - Registered C function 'malloc'
+c_registry.py (line 73) [INFO] - Registered C function 'calloc'
+c_registry.py (line 73) [INFO] - Registered C function 'realloc'
+c_registry.py (line 73) [INFO] - Registered C function 'free'
+c_registry.py (line 73) [INFO] - Registered C function 'memcpy'
+c_registry.py (line 73) [INFO] - Registered C function 'puts'
+c_registry.py (line 73) [INFO] - Registered C function 'exit'
+c_registry.py (line 73) [INFO] - Registered C function 'snprintf'
+__init__.py (line 36) [INFO] - Wrote LLVM IR to C:\Programming\Python\Gem\gem\stdlib\core\core.ll
+__init__.py (line 45) [INFO] - Executing compilation command: clang -c -o C:\Programming\Python\Gem\gem\stdlib\core\core.o C:\Programming\Python\Gem\gem\stdlib\core\core.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra 
+__init__.py (line 47) [INFO] - Wrote object file to C:\Programming\Python\Gem\gem\stdlib\core\core.o
+code_generation.py (line 242) [INFO] - Imported gem library core
+__init__.py (line 36) [INFO] - Wrote LLVM IR to examples\test.ll
+__init__.py (line 45) [INFO] - Executing compilation command: clang -c -o examples\test.o examples\test.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra 
+__init__.py (line 47) [INFO] - Wrote object file to examples\test.o
+__init__.py (line 55) [INFO] - Executing compilation command: clang -o examples\test.exe examples\test.o 
+__init__.py (line 57) [INFO] - Wrote executable to examples\test.exe

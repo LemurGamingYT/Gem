@@ -1,0 +1,273 @@
+from contextlib import contextmanager
+from importlib import import_module
+from logging import info
+from typing import cast
+
+from gem.passes import CompilerPass
+from gem import ir
+
+
+class AnalyserPass(CompilerPass):
+    def __init__(self, scope: ir.Scope):
+        super().__init__(scope)
+        
+        self.declare_intrinsic('panic', scope.type_map.get('nil'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('string'), 'msg')
+        ])
+        
+        self.declare_intrinsic('__is_null', scope.type_map.get('bool'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr')
+        ])
+        
+        self.declare_intrinsic('__buffer', scope.type_map.get('pointer'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'size')
+        ])
+        
+        self.declare_intrinsic('__create_string', scope.type_map.get('string'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'length')
+        ])
+        
+        self.declare_intrinsic('__alloc', scope.type_map.get('pointer'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'size')
+        ])
+        
+        self.declare_intrinsic('__free', scope.type_map.get('nil'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr')
+        ])
+        
+        self.declare_intrinsic('__memcpy', scope.type_map.get('pointer'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'dest'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'src'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'size'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('bool'), 'is_volatile')
+        ])
+        
+        self.declare_intrinsic('__format_int', scope.type_map.get('int'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'buf'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'length'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'i')
+        ])
+        
+        self.declare_intrinsic('__format_float', scope.type_map.get('int'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'buf'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'length'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('float'), 'f')
+        ])
+        
+        self.declare_intrinsic('__print_pointer', scope.type_map.get('nil'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr')
+        ])
+        
+        self.declare_intrinsic('__add_ints', scope.type_map.get('int'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'a'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'b')
+        ])
+        
+    def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
+        self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(
+            ir.Position.zero(), ret_type, name, params
+        )))
+        
+        info(f'Declared intrinsic {name}')
+    
+    @contextmanager
+    def child_scope(self):
+        old_scope = self.scope
+        self.scope = self.scope.make_child()
+        yield
+        self.scope = old_scope
+    
+    def visit_Program(self, node: ir.Program):
+        nodes = []
+        for stmt in node.nodes:
+            nodes.append(self.visit(stmt))
+        
+        return ir.Program(node.pos, node.type, nodes)
+    
+    def visit_Type(self, node: ir.Type):
+        t = self.scope.type_map.get(node.type)
+        if t is None:
+            node.pos.comptime_error(self.scope, f'unknown type \'{node.type}\'')
+        
+        return t
+    
+    def visit_Arg(self, node: ir.Arg):
+        value = self.visit(node.value)
+        return ir.Arg(node.pos, value.type, value)
+    
+    def visit_Param(self, node: ir.Param):
+        return ir.Param(node.pos, self.visit(node.type), node.name, node.is_mutable)
+    
+    def visit_Body(self, node: ir.Body):
+        nodes = []
+        for stmt in node.nodes:
+            nodes.append(self.visit(stmt))
+        
+        return ir.Body(node.pos, node.type, nodes)
+    
+    def visit_Function(self, node: ir.Function):
+        ret_type = self.visit(node.ret_type)
+        params = [self.visit(param) for param in node.params]
+        overloads = [self.visit(overload) for overload in node.overloads]
+        extend_type = self.visit(node.extend_type) if node.extend_type is not None else None
+        flags = node.flags
+        func_name = node.name
+        if extend_type is not None:
+            func_name = f'{extend_type}.{func_name}'
+            flags.static = True
+        
+        self.scope.symbol_table.add(ir.Symbol(func_name, self.scope.type_map.get('function'), node))
+        
+        body = node.body
+        if body is not None:
+            with self.child_scope():
+                for param in params:
+                    self.scope.symbol_table.add(ir.Symbol(param.name, param.type, param, param.is_mutable))
+                
+                body = self.visit(body)
+        
+        return ir.Function(
+            node.pos, ret_type, func_name, params, body, overloads, flags, generic_params=node.generic_params
+        )
+    
+    def visit_Variable(self, node: ir.Variable):
+        value = self.visit(node.value)
+        if (symbol := self.scope.symbol_table.get(node.name)) is not None:
+            return self.visit(ir.Assignment(node.pos, symbol.type, node.name, value, node.op))
+        
+        self.scope.symbol_table.add(ir.Symbol(node.name, value.type, value, node.is_mutable))
+        return ir.Variable(node.pos, value.type, node.name, value, node.is_mutable)
+    
+    def visit_Assignment(self, node: ir.Assignment):
+        symbol = cast(ir.Symbol, self.scope.symbol_table.get(node.name))
+        if symbol.is_mutable:
+            node.pos.comptime_error(self.scope, f'\'{node.name}\' is not mutable')
+        
+        symbol.value = node.value
+        return self
+    
+    def visit_Use(self, node: ir.Use):
+        stdlib_path = ir.STDLIB_PATH / node.path
+        if stdlib_path.exists():
+            if self.scope.file.stem == stdlib_path.stem:
+                return node
+            
+            if (stdlib_path / f'{node.path}.py').exists():
+                py_module = import_module(f'gem.stdlib.{node.path}.{node.path}')
+                instance = getattr(py_module, node.path)(self.scope)
+                instance.add_to_scope()
+                
+                info(f'Imported python library {node.path}')
+            
+            if (gem_file := stdlib_path / f'{node.path}.gem').exists():
+                from gem import parse
+                
+                scope = ir.Scope(gem_file)
+                program = parse(scope)
+                AnalyserPass.run(scope, program)
+                
+                self.scope.merge(scope)
+                
+                info(f'Imported gem library {node.path}')
+        
+        return node
+    
+    def visit_Return(self, node: ir.Return):
+        value = self.visit(node.value)
+        return ir.Return(node.pos, value.type, value)
+    
+    def visit_Int(self, node: ir.Int):
+        return ir.Int(node.pos, self.visit(node.type), node.value)
+    
+    def visit_Float(self, node: ir.Float):
+        return ir.Float(node.pos, self.visit(node.type), node.value)
+    
+    def visit_String(self, node: ir.String):
+        return self.visit(ir.Call(node.pos, self.visit(node.type), 'string.new', [
+            ir.StringLiteral(node.pos, self.scope.type_map.get('pointer'), node.value).to_arg(),
+            ir.Int(node.pos, self.scope.type_map.get('int'), len(node.value)).to_arg()
+        ]))
+    
+    def visit_StringLiteral(self, node: ir.StringLiteral):
+        return ir.StringLiteral(node.pos, self.scope.type_map.get('pointer'), node.value)
+    
+    def visit_Bool(self, node: ir.Bool):
+        return ir.Bool(node.pos, self.visit(node.type), node.value)
+    
+    def visit_Id(self, node: ir.Id):
+        symbol = self.scope.symbol_table.get(node.name)
+        typ = self.scope.type_map.tryget(node.name)
+        if symbol is None and typ is None:
+            node.pos.comptime_error(self.scope, f'unknown symbol \'{node.name}\'')
+        
+        return ir.Id(node.pos, symbol.type if symbol is not None else cast(ir.Type, typ), node.name)
+    
+    def visit_Bracketed(self, node: ir.Bracketed):
+        value = self.visit(node.value)
+        return ir.Bracketed(node.pos, value.type, value)
+    
+    def visit_Ternary(self, node: ir.Ternary):
+        cond = self.visit(node.cond)
+        true = self.visit(node.true)
+        false = self.visit(node.false)
+        if cond.type != self.scope.type_map.get('bool'):
+            node.pos.comptime_error(self.scope, f'expected type \'bool\' for condition, got \'{cond.type}\'')
+        
+        if true.type != false.type:
+            node.pos.comptime_error(self.scope, 'ternary branches must have the same type')
+        
+        return ir.Ternary(node.pos, true.type, cond, true, false)
+    
+    def visit_Call(self, node: ir.Call):
+        symbol = self.scope.symbol_table.get(node.callee)
+        if symbol is None:
+            node.pos.comptime_error(self.scope, f'unknown symbol \'{node.callee}\'')
+
+        func = cast(ir.Function, symbol.value)
+        args = [self.visit(arg) for arg in node.args]
+        for overload in [func] + func.overloads:
+            info(f'Checking if {overload.name}\'s arguments match')
+            if not overload.match_params(args):
+                continue
+            
+            return ir.Call(node.pos, func.ret_type, node.callee, args)
+        
+        node.pos.comptime_error(self.scope, f'no matching overload for function \'{node.callee}\' with given arguments')
+    
+    def visit_Operation(self, node: ir.Operation):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        left_type, right_type = left.type, right.type
+        callee = f'{left_type}.{node.op}.{right_type}'
+        if callee not in self.scope.symbol_table.symbols:
+            node.pos.comptime_error(self.scope, f'invalid operation \'{node.op}\' for types \'{left_type}\' and \'{right_type}\'')
+        
+        return self.visit(ir.Call(node.pos, left_type, callee, [
+            ir.Arg(node.pos, left_type, left), ir.Arg(node.pos, right_type, right
+        )]))
+    
+    def visit_Attribute(self, node: ir.Attribute):
+        value = self.visit(node.value)
+        callee = f'{value.type}.{node.attr}'
+        args = [ir.Arg(node.pos, value.type, value)] + (node.args if node.args is not None else [])
+        symbol = self.scope.symbol_table.get(callee)
+        if symbol is None:
+            node.pos.comptime_error(self.scope, f'no attribute \'{node.attr}\' for type \'{value.type}\'')
+        
+        func = cast(ir.Function, symbol.value)
+        if func.flags.static:
+            args = args[1:]
+        
+        return self.visit(ir.Call(node.pos, value.type, callee, args))
+    
+    def visit_New(self, node: ir.New):
+        new_type = self.visit_Type(node.new_type)
+        callee = f'{new_type}.new'
+        symbol = self.scope.symbol_table.get(callee)
+        if symbol is None:
+            node.pos.comptime_error(self.scope, f'no constructor for type \'{new_type}\'')
+        
+        return self.visit(ir.Attribute(
+            node.pos, new_type, ir.Id(node.new_type.pos, new_type, str(new_type)), 'new', node.args
+        ))

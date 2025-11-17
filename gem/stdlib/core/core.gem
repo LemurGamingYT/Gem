@@ -1,0 +1,25 @@
+fn string.new(pointer ptr, int length) -> string {
+    ptr_copy = __alloc(__add_ints(length, 1))
+    __memcpy(ptr_copy, ptr, length, false)
+    return __create_string(ptr_copy, length)
+}
+
+fn int.to_string(int i) -> string {
+    buf = __buffer(16)
+    length = __format_int(buf, 16, i)
+    return new string(buf, length)
+}
+
+fn float.to_string(float f) -> string {
+    buf = __buffer(64)
+    length = __format_float(buf, 64, f)
+    return new string(buf, length)
+}
+
+fn string.to_string(string s) -> string {
+    return s
+}
+
+fn bool.to_string(bool b) -> string {
+    return "true" if b else "false"
+}
