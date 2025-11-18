@@ -5,7 +5,6 @@ from typing import cast
 
 from llvmlite import ir as lir, binding as llvm
 
-from gem.lib import DefinitionContext, UnknownFunctionError
 from gem.c_registry import CRegistry
 from gem.passes import CompilerPass
 from gem import ir
@@ -238,6 +237,12 @@ class CodeGenerationPass(CompilerPass):
                 scope = ir.Scope(gem_file)
                 compile_to_obj(scope)
                 
+                for symbol in scope.symbol_table.symbols.values():
+                    func = symbol.value
+                    if isinstance(func, lir.Function):
+                        new_func = lir.Function(self.module, func.function_type, func.name)
+                        new_func.linkage = 'external'
+                
                 info(f'Imported gem library {node.path}')
         
         return node
@@ -337,24 +342,11 @@ class CodeGenerationPass(CompilerPass):
             return result
         
         symbol = self.scope.symbol_table.get(node.callee)
-        if symbol is None:
-            raise UnknownFunctionError(node.callee)
+        assert symbol is not None
         
         func = symbol.value
         if isinstance(func, ir.Function):
-            if callable(func.body):
-                ctx = DefinitionContext.create(node.pos, self.scope, self, [
-                    ir.Arg(arg.pos, arg.type, self.visit(arg))
-                    for arg in node.args
-                ])
-                
-                res = func.body(ctx)
-                if res is None:
-                    return NULL()
-                
-                return res
-            else:
-                func = self.visit(func)
+            func = self.visit(func)
         
         args = [cast(lir.Value, self.visit(arg)) for arg in node.args]
         return self.builder.call(func, args, node.callee)

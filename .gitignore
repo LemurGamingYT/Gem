@@ -1,0 +1,10 @@
+compile_antlr4.bat
+__pycache__/
+
+# compiler generated files
+debug.log
+
+# codegen files
+*.o
+*.ll
+*.exe
