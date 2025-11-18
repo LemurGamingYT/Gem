@@ -59,7 +59,7 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr')
         ])
         
-        self.declare_intrinsic('__add_ints', scope.type_map.get('int'), [
+        self.declare_intrinsic('int.+.int', scope.type_map.get('int'), [
             ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'a'),
             ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'b')
         ])

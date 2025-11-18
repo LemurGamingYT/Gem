@@ -84,13 +84,17 @@ class TypeMap:
         self.types.update(other.types)
 
 @dataclass
+class CodegenData:
+    object_files: list[Path] = field(default_factory=list)
+
+@dataclass
 class Scope:
     file: Path
     parent: Union['Scope', None] = None
     symbol_table: SymbolTable = field(default_factory=SymbolTable)
     type_map: TypeMap = field(default_factory=TypeMap)
     dependencies: list[Path] = field(default_factory=list)
-    extra_compilation_args: list[str] = field(default_factory=list)
+    codegen_data: CodegenData = field(default_factory=CodegenData)
     
     @property
     def unique_name(self):
@@ -105,7 +109,7 @@ class Scope:
             self.type_map = self.parent.type_map.clone()
             
             self.dependencies = self.parent.dependencies
-            self.extra_compilation_args = self.parent.extra_compilation_args
+            self.codegen_data = self.parent.codegen_data
         else:
             self._unique_name_idx = 0
             

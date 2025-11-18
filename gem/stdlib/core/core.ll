@@ -11,10 +11,10 @@ entry:
   %"length_ptr" = alloca i32
   store i32 %"length_param", i32* %"length_ptr"
   %"length" = load i32, i32* %"length_ptr"
-  %"__add_ints" = add i32 %"length", 1
-  %"__alloc" = call i8* @"malloc"(i32 %"__add_ints")
+  %"int.+.int" = add i32 %"length", 1
+  %"__alloc" = call i8* @"malloc"(i32 %"int.+.int")
   %"__alloc_ptr" = icmp eq i8* %"__alloc", null
-  br i1 %"__alloc_ptr", label %"entry.if", label %"entry.endif"
+  br i1 %"__alloc_ptr", label %"entry.if", label %"entry.endif", !prof !0
 entry.if:
   call void @"puts"(i8* getelementptr ([14 x i8], [14 x i8]* @"str", i32 0, i32 0))
   call void @"exit"(i32 1)
@@ -117,3 +117,4 @@ entry:
 @"str.2" = internal constant [5 x i8] c"true\00"
 @"str.3" = internal constant [6 x i8] c"false\00"
 @"str.4" = internal constant [6 x i8] c"false\00"
+!0 = !{ !"branch_weights", i32 1, i32 99 }

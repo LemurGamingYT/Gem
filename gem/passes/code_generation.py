@@ -235,13 +235,16 @@ class CodeGenerationPass(CompilerPass):
                 from gem import compile_to_obj
                 
                 scope = ir.Scope(gem_file)
-                compile_to_obj(scope)
+                obj_file = compile_to_obj(scope)
                 
                 for symbol in scope.symbol_table.symbols.values():
                     func = symbol.value
                     if isinstance(func, lir.Function):
                         new_func = lir.Function(self.module, func.function_type, func.name)
                         new_func.linkage = 'external'
+                
+                self.scope.codegen_data.object_files.append(obj_file)
+                self.scope.merge(scope)
                 
                 info(f'Imported gem library {node.path}')
         
@@ -302,7 +305,7 @@ class CodeGenerationPass(CompilerPass):
                 
                 ptr = self.builder.call(malloc, args, '__alloc')
                 is_null = self.builder.icmp_signed('==', ptr, NULL(), '__alloc_ptr')
-                with self.builder.if_then(is_null):
+                with self.builder.if_then(is_null, False):
                     error = create_string_constant(self.module, 'out of memory', '__alloc_error')
                     self.builder.call(puts, [error])
                     self.builder.call(exit, [llint(1)])
@@ -334,8 +337,8 @@ class CodeGenerationPass(CompilerPass):
             case '__print_pointer':
                 puts = self.c_registry.get('puts')
                 return self.builder.call(puts, args, '__print_pointer')
-            case '__add_ints':
-                return self.builder.add(args[0], args[1], '__add_ints')
+            case 'int.+.int':
+                return self.builder.add(args[0], args[1], 'int.+.int')
     
     def visit_Call(self, node: ir.Call):
         if (result := self.handle_intrinsics(node)) is not None:
