@@ -15,8 +15,9 @@ VERSION = '0.0.1'
 @dataclass
 class CompileOptions:
     clean: bool = False
+    optimize: bool = False
 
-def parse(scope: ir.Scope, options: CompileOptions):
+def parse(scope: ir.Scope, _: CompileOptions):
     ir_builder = IRBuilder(scope)
     program = ir_builder.build()
     program.nodes.insert(0, ir.Use(program.pos, program.type, 'core'))
@@ -42,7 +43,8 @@ def compile_to_ir(scope: ir.Scope, options: CompileOptions):
 def compile_to_obj(scope: ir.Scope, options: CompileOptions):
     ll_file = compile_to_ir(scope, options)
     obj_file = scope.file.with_suffix('.o')
-    cmd = f'clang -c -o {obj_file} {ll_file} -Wno-override-module -Wall -Werror -Wpedantic -Wextra'
+    optimize_flag = '-O3' if options.optimize else '-O0'
+    cmd = f'clang -c -o {obj_file} {ll_file} -Wno-override-module -Wall -Werror -Wpedantic -Wextra {optimize_flag}'
     info(f'Executing compilation command: {cmd}')
     run(cmd, shell=True)
     info(f'Wrote object file to {obj_file}')

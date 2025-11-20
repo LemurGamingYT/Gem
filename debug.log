@@ -1,10 +1,9 @@
 main.py (line 11) [INFO] - Bundle v0.0.1
 main.py (line 12) [INFO] - Backend: llvmlite/LLVM
 main.py (line 13) [INFO] - Target: x86_64-pc-windows-msvc
-__init__.py (line 27) [INFO] - Parsed Program:
+__init__.py (line 28) [INFO] - Parsed Program:
 use "core"
 fn main() -> int {
-any x = 5 + 5
 return 0
 }
 analyser.py (line 77) [INFO] - Declared intrinsic panic
@@ -44,11 +43,9 @@ analyser.py (line 236) [INFO] - Checking if string.new's arguments match
 analyser.py (line 236) [INFO] - Checking if string.new's arguments match
 analyser.py (line 236) [INFO] - Checking if string.new's arguments match
 analyser.py (line 178) [INFO] - Imported gem library core
-analyser.py (line 236) [INFO] - Checking if int.+.int's arguments match
-__init__.py (line 30) [INFO] - Analysed Program:
+__init__.py (line 31) [INFO] - Analysed Program:
 use "core"
 fn main() -> int {
-int x = int.+.int(5, 5)
 return 0
 }
 c_registry.py (line 73) [INFO] - Registered C function 'malloc'
@@ -59,7 +56,7 @@ c_registry.py (line 73) [INFO] - Registered C function 'memcpy'
 c_registry.py (line 73) [INFO] - Registered C function 'puts'
 c_registry.py (line 73) [INFO] - Registered C function 'exit'
 c_registry.py (line 73) [INFO] - Registered C function 'snprintf'
-__init__.py (line 27) [INFO] - Parsed Program:
+__init__.py (line 28) [INFO] - Parsed Program:
 use "core"
 fn string.new(pointer ptr, int length) -> string {
 any ptr_copy = __alloc(length + 1)
@@ -106,7 +103,7 @@ analyser.py (line 236) [INFO] - Checking if __format_float's arguments match
 analyser.py (line 236) [INFO] - Checking if string.new's arguments match
 analyser.py (line 236) [INFO] - Checking if string.new's arguments match
 analyser.py (line 236) [INFO] - Checking if string.new's arguments match
-__init__.py (line 30) [INFO] - Analysed Program:
+__init__.py (line 31) [INFO] - Analysed Program:
 use "core"
 static fn string.new(pointer ptr, int length) -> string {
 pointer ptr_copy = __alloc(int.+.int(length, 1))
@@ -137,12 +134,12 @@ c_registry.py (line 73) [INFO] - Registered C function 'memcpy'
 c_registry.py (line 73) [INFO] - Registered C function 'puts'
 c_registry.py (line 73) [INFO] - Registered C function 'exit'
 c_registry.py (line 73) [INFO] - Registered C function 'snprintf'
-__init__.py (line 38) [INFO] - Wrote LLVM IR to C:\Programming\Python\Gem\gem\stdlib\core\core.ll
-__init__.py (line 46) [INFO] - Executing compilation command: clang -c -o C:\Programming\Python\Gem\gem\stdlib\core\core.o C:\Programming\Python\Gem\gem\stdlib\core\core.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra
-__init__.py (line 48) [INFO] - Wrote object file to C:\Programming\Python\Gem\gem\stdlib\core\core.o
+__init__.py (line 39) [INFO] - Wrote LLVM IR to C:\Programming\Python\Gem\gem\stdlib\core\core.ll
+__init__.py (line 48) [INFO] - Executing compilation command: clang -c -o C:\Programming\Python\Gem\gem\stdlib\core\core.o C:\Programming\Python\Gem\gem\stdlib\core\core.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra -O0
+__init__.py (line 50) [INFO] - Wrote object file to C:\Programming\Python\Gem\gem\stdlib\core\core.o
 code_generation.py (line 249) [INFO] - Imported gem library core
-__init__.py (line 38) [INFO] - Wrote LLVM IR to examples\test.ll
-__init__.py (line 46) [INFO] - Executing compilation command: clang -c -o examples\test.o examples\test.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra
-__init__.py (line 48) [INFO] - Wrote object file to examples\test.o
-__init__.py (line 60) [INFO] - Executing compilation command: clang -o examples\test.exe examples\test.o C:\Programming\Python\Gem\gem\stdlib\core\core.o
-__init__.py (line 62) [INFO] - Wrote executable to examples\test.exe
+__init__.py (line 39) [INFO] - Wrote LLVM IR to examples\test.ll
+__init__.py (line 48) [INFO] - Executing compilation command: clang -c -o examples\test.o examples\test.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra -O0
+__init__.py (line 50) [INFO] - Wrote object file to examples\test.o
+__init__.py (line 62) [INFO] - Executing compilation command: clang -o examples\test.exe examples\test.o C:\Programming\Python\Gem\gem\stdlib\core\core.o
+__init__.py (line 64) [INFO] - Wrote executable to examples\test.exe
