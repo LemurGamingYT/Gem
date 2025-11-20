@@ -1,5 +1,6 @@
 compile_antlr4.bat
 __pycache__/
+*.pyc
 
 # compiler generated files
 debug.log

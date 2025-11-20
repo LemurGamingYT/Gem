@@ -8,12 +8,13 @@ from gem.ir import Node, Program, Scope
 NodeType = TypeVar('NodeType', bound=Node)
 
 class CompilerPass(ABC):
-    def __init__(self, scope: Scope):
+    def __init__(self, scope: Scope, options):
         self.scope = scope
+        self.options = options
     
     @classmethod
-    def run(cls, scope: Scope, program: Program) -> Any:
-        self = cls(scope)
+    def run(cls, scope: Scope, options, program: Program) -> Any:
+        self = cls(scope, options)
         return self.visit(program)
     
     def visit(self, node: NodeType) -> NodeType | Any:

@@ -8,8 +8,8 @@ from gem import ir
 
 
 class AnalyserPass(CompilerPass):
-    def __init__(self, scope: ir.Scope):
-        super().__init__(scope)
+    def __init__(self, scope: ir.Scope, options):
+        super().__init__(scope, options)
         
         self.declare_intrinsic('panic', scope.type_map.get('nil'), [
             ir.Param(ir.Position.zero(), scope.type_map.get('string'), 'msg')
@@ -62,6 +62,11 @@ class AnalyserPass(CompilerPass):
         self.declare_intrinsic('int.+.int', scope.type_map.get('int'), [
             ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'a'),
             ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'b')
+        ])
+        
+        self.declare_intrinsic('float.+.float', scope.type_map.get('float'), [
+            ir.Param(ir.Position.zero(), scope.type_map.get('float'), 'a'),
+            ir.Param(ir.Position.zero(), scope.type_map.get('float'), 'b')
         ])
         
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
@@ -117,19 +122,20 @@ class AnalyserPass(CompilerPass):
             func_name = f'{extend_type}.{func_name}'
             flags.static = True
         
-        self.scope.symbol_table.add(ir.Symbol(func_name, self.scope.type_map.get('function'), node))
+        func = ir.Function(
+            node.pos, ret_type, func_name, params, node.body, overloads, flags, generic_params=node.generic_params
+        )
         
+        self.scope.symbol_table.add(ir.Symbol(func.name, self.scope.type_map.get('function'), func))
         body = node.body
         if body is not None:
             with self.child_scope():
                 for param in params:
                     self.scope.symbol_table.add(ir.Symbol(param.name, param.type, param, param.is_mutable))
                 
-                body = self.visit(body)
+                func.body = self.visit(body)
         
-        return ir.Function(
-            node.pos, ret_type, func_name, params, body, overloads, flags, generic_params=node.generic_params
-        )
+        return func
     
     def visit_Variable(self, node: ir.Variable):
         value = self.visit(node.value)
@@ -164,8 +170,8 @@ class AnalyserPass(CompilerPass):
                 from gem import parse
                 
                 scope = ir.Scope(gem_file)
-                program = parse(scope)
-                AnalyserPass.run(scope, program)
+                program = parse(scope, self.options)
+                AnalyserPass.run(scope, self.options, program)
                 
                 self.scope.merge(scope)
                 
@@ -231,7 +237,8 @@ class AnalyserPass(CompilerPass):
             if not overload.match_params(args):
                 continue
             
-            return ir.Call(node.pos, func.ret_type, node.callee, args)
+            callsite = ir.Call(node.pos, overload.ret_type, overload.name, args)
+            return callsite
         
         node.pos.comptime_error(self.scope, f'no matching overload for function \'{node.callee}\' with given arguments')
     

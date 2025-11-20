@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from sys import exit as sys_exit
 from subprocess import run
 from logging import info
@@ -11,46 +12,57 @@ from gem import ir
 
 VERSION = '0.0.1'
 
-def parse(scope: ir.Scope):
+@dataclass
+class CompileOptions:
+    clean: bool = False
+
+def parse(scope: ir.Scope, options: CompileOptions):
     ir_builder = IRBuilder(scope)
     program = ir_builder.build()
     program.nodes.insert(0, ir.Use(program.pos, program.type, 'core'))
     return program
 
-def compile_to_str(scope: ir.Scope):
-    program = parse(scope)
+def compile_to_str(scope: ir.Scope, options: CompileOptions):
+    program = parse(scope, options)
     info(f'Parsed Program:\n{program}')
     
-    analysed_program = AnalyserPass.run(scope, program)
+    analysed_program = AnalyserPass.run(scope, options, program)
     info(f'Analysed Program:\n{analysed_program}')
     
-    return CodeGenerationPass.run(scope, analysed_program)
+    return CodeGenerationPass.run(scope, options, analysed_program)
 
-def compile_to_ir(scope: ir.Scope):
-    code = compile_to_str(scope)
+def compile_to_ir(scope: ir.Scope, options: CompileOptions):
+    code = compile_to_str(scope, options)
     ll_file = scope.file.with_suffix('.ll')
     ll_file.write_text(code)
     info(f'Wrote LLVM IR to {ll_file}')
     
     return ll_file
     
-def compile_to_obj(scope: ir.Scope):
-    ll_file = compile_to_ir(scope)
+def compile_to_obj(scope: ir.Scope, options: CompileOptions):
+    ll_file = compile_to_ir(scope, options)
     obj_file = scope.file.with_suffix('.o')
     cmd = f'clang -c -o {obj_file} {ll_file} -Wno-override-module -Wall -Werror -Wpedantic -Wextra'
     info(f'Executing compilation command: {cmd}')
     run(cmd, shell=True)
     info(f'Wrote object file to {obj_file}')
+    
+    if options.clean:
+        ll_file.unlink()
+    
     return obj_file
 
-def compile_to_exe(scope: ir.Scope):
-    obj_file = compile_to_obj(scope)
+def compile_to_exe(scope: ir.Scope, options: CompileOptions):
+    obj_file = compile_to_obj(scope, options)
     exe_file = scope.file.with_suffix('.exe')
     object_files_str = ' '.join(str(obj_file) for obj_file in scope.codegen_data.object_files)
     cmd = f'clang -o {exe_file} {obj_file} {object_files_str}'
     info(f'Executing compilation command: {cmd}')
     run(cmd, shell=True)
     info(f'Wrote executable to {exe_file}')
+    
+    if options.clean:
+        obj_file.unlink()
 
 class ArgParser:
     def __init__(self, args: list[str]):
@@ -87,6 +99,13 @@ Available actions:\n{actions_str}""")
         
         return None
     
+    def option(self, name: str):
+        for arg in self.args:
+            if arg.startswith(f'--{name}'):
+                return True
+        
+        return False
+    
     def action_build(self):
         file_path = self.arg(1)
         if file_path is None:
@@ -106,4 +125,5 @@ Available actions:\n{actions_str}""")
             sys_exit(1)
         
         scope = ir.Scope(path)
-        compile_to_exe(scope)
+        options = CompileOptions(self.option('clean'))
+        compile_to_exe(scope, options)

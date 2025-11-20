@@ -14,6 +14,36 @@ class GemVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by GemParser#arg.
+    def visitArg(self, ctx:GemParser.ArgContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by GemParser#args.
+    def visitArgs(self, ctx:GemParser.ArgsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by GemParser#param.
+    def visitParam(self, ctx:GemParser.ParamContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by GemParser#params.
+    def visitParams(self, ctx:GemParser.ParamsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by GemParser#genericParam.
+    def visitGenericParam(self, ctx:GemParser.GenericParamContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by GemParser#genericParams.
+    def visitGenericParams(self, ctx:GemParser.GenericParamsContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by GemParser#type.
     def visitType(self, ctx:GemParser.TypeContext):
         return self.visitChildren(ctx)
@@ -84,11 +114,6 @@ class GemVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by GemParser#externStmt.
-    def visitExternStmt(self, ctx:GemParser.ExternStmtContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by GemParser#funcAssign.
     def visitFuncAssign(self, ctx:GemParser.FuncAssignContext):
         return self.visitChildren(ctx)
@@ -96,26 +121,6 @@ class GemVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by GemParser#varAssign.
     def visitVarAssign(self, ctx:GemParser.VarAssignContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by GemParser#arg.
-    def visitArg(self, ctx:GemParser.ArgContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by GemParser#args.
-    def visitArgs(self, ctx:GemParser.ArgsContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by GemParser#param.
-    def visitParam(self, ctx:GemParser.ParamContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by GemParser#params.
-    def visitParams(self, ctx:GemParser.ParamsContext):
         return self.visitChildren(ctx)
 
 

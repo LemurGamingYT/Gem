@@ -70,6 +70,9 @@ class TypeMap:
     def add(self, display: str, typ: str | None = None):
         self.types[display] = Type(Position.zero(), typ or display, display)
     
+    def add_type(self, display: str, typ: 'Type'):
+        self.types[display] = typ
+    
     def has(self, name: str):
         return name in self.types
                  
@@ -211,7 +214,7 @@ class Function(Node):
     overloads: list['Function'] = field(default_factory=list)
     flags: FunctionFlags = field(default_factory=FunctionFlags)
     extend_type: Type | None = None
-    generic_params: list[Param] = field(default_factory=list)
+    generic_params: list[str] = field(default_factory=list)
     
     @property
     def ret_type(self):
@@ -238,7 +241,8 @@ class Function(Node):
     def __str__(self) -> str:
         params_str = ', '.join(str(param) for param in self.params)
         extend_str = f'{self.extend_type}.' if self.extend_type else ''
-        signature = f'{self.flags}fn {extend_str}{self.name}({params_str}) -> {self.ret_type}'
+        generics_str = ('<' + ', '.join(self.generic_params) + '>') if len(self.generic_params) > 0 else ''
+        signature = f'{self.flags}fn {extend_str}{self.name}{generics_str}({params_str}) -> {self.ret_type}'
         if self.body is None:
             return signature
         

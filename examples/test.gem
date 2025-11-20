@@ -1,4 +1,3 @@
 fn main() -> int {
-    s = "Hello, World!"
     return 0
 }

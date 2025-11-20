@@ -88,14 +88,21 @@ class IRBuilder(GemVisitor):
     #         extend_type=extend_type
     #     )
     
+    def visitGenericParams(self, ctx):
+        return [self.visitGenericParam(param) for param in ctx.genericParam()]
+    
+    def visitGenericParam(self, ctx):
+        return ctx.ID().getText()
+    
     def visitFuncAssign(self, ctx):
         return_type = self.visitReturnArrow(ctx.returnArrow())
         func_name, extend_type = self.visitFuncName(ctx.funcName())
+        generic_params = self.visitGenericParams(ctx.genericParams()) if ctx.genericParams() is not None else []
         return ir.Function(
             self.pos(ctx), return_type, func_name,
             self.visitParams(ctx.params()), self.visitBody(ctx.body()),
             flags=ir.FunctionFlags(),
-            extend_type=extend_type
+            extend_type=extend_type, generic_params=generic_params
         )
     
     def visitVarAssign(self, ctx):

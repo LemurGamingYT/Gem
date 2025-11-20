@@ -43,7 +43,7 @@ whileStmt: WHILE expr body;
 useStmt: USE STRING;
 
 funcAssign
-    : FUNC funcName LPAREN params? RPAREN returnArrow? body
+    : FUNC funcName /* genericParams? */ LPAREN params? RPAREN returnArrow? body
     ;
 varAssign
     : ID op=(ADD | SUB | MUL | DIV | MOD)? ASSIGN expr

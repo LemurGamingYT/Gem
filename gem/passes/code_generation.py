@@ -14,8 +14,8 @@ from gem.codegen_utils import (
 
 
 class CodeGenerationPass(CompilerPass):
-    def __init__(self, scope: ir.Scope):
-        super().__init__(scope)
+    def __init__(self, scope: ir.Scope, options):
+        super().__init__(scope, options)
         
         self.module = lir.Module(scope.file.stem, lir.Context())
         self.module.triple = llvm.get_default_triple()
@@ -235,7 +235,7 @@ class CodeGenerationPass(CompilerPass):
                 from gem import compile_to_obj
                 
                 scope = ir.Scope(gem_file)
-                obj_file = compile_to_obj(scope)
+                obj_file = compile_to_obj(scope, self.options)
                 
                 for symbol in scope.symbol_table.symbols.values():
                     func = symbol.value
@@ -339,6 +339,8 @@ class CodeGenerationPass(CompilerPass):
                 return self.builder.call(puts, args, '__print_pointer')
             case 'int.+.int':
                 return self.builder.add(args[0], args[1], 'int.+.int')
+            case 'float.+.float':
+                return self.builder.fadd(args[0], args[1], 'float.+.float')
     
     def visit_Call(self, node: ir.Call):
         if (result := self.handle_intrinsics(node)) is not None:
