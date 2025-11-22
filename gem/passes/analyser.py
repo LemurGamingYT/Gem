@@ -8,65 +8,65 @@ from gem import ir
 
 
 class AnalyserPass(CompilerPass):
-    def __init__(self, scope: ir.Scope, options):
-        super().__init__(scope, options)
+    def __init__(self, file: ir.File, options):
+        super().__init__(file, options)
         
-        self.declare_intrinsic('panic', scope.type_map.get('nil'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('string'), 'msg')
+        self.declare_intrinsic('panic', self.scope.type_map.get('nil'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('string'), 'msg')
         ])
         
-        self.declare_intrinsic('__is_null', scope.type_map.get('bool'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr')
+        self.declare_intrinsic('__is_null', self.scope.type_map.get('bool'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
         ])
         
-        self.declare_intrinsic('__buffer', scope.type_map.get('pointer'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'size')
+        self.declare_intrinsic('__buffer', self.scope.type_map.get('pointer'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'size')
         ])
         
-        self.declare_intrinsic('__create_string', scope.type_map.get('string'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'length')
+        self.declare_intrinsic('__create_string', self.scope.type_map.get('string'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'length')
         ])
         
-        self.declare_intrinsic('__alloc', scope.type_map.get('pointer'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'size')
+        self.declare_intrinsic('__alloc', self.scope.type_map.get('pointer'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'size')
         ])
         
-        self.declare_intrinsic('__free', scope.type_map.get('nil'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr')
+        self.declare_intrinsic('__free', self.scope.type_map.get('nil'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
         ])
         
-        self.declare_intrinsic('__memcpy', scope.type_map.get('pointer'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'dest'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'src'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'size'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('bool'), 'is_volatile')
+        self.declare_intrinsic('__memcpy', self.scope.type_map.get('pointer'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'dest'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'src'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'size'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('bool'), 'is_volatile')
         ])
         
-        self.declare_intrinsic('__format_int', scope.type_map.get('int'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'buf'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'length'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'i')
+        self.declare_intrinsic('__format_int', self.scope.type_map.get('int'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'buf'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'length'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'i')
         ])
         
-        self.declare_intrinsic('__format_float', scope.type_map.get('int'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'buf'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'length'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('float'), 'f')
+        self.declare_intrinsic('__format_float', self.scope.type_map.get('int'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'buf'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'length'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'f')
         ])
         
-        self.declare_intrinsic('__print_pointer', scope.type_map.get('nil'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('pointer'), 'ptr')
+        self.declare_intrinsic('__print_pointer', self.scope.type_map.get('nil'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
         ])
         
-        self.declare_intrinsic('int.+.int', scope.type_map.get('int'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'a'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('int'), 'b')
+        self.declare_intrinsic('int.+.int', self.scope.type_map.get('int'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'a'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'b')
         ])
         
-        self.declare_intrinsic('float.+.float', scope.type_map.get('float'), [
-            ir.Param(ir.Position.zero(), scope.type_map.get('float'), 'a'),
-            ir.Param(ir.Position.zero(), scope.type_map.get('float'), 'b')
+        self.declare_intrinsic('float.+.float', self.scope.type_map.get('float'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'a'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'b')
         ])
         
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
@@ -93,7 +93,7 @@ class AnalyserPass(CompilerPass):
     def visit_Type(self, node: ir.Type):
         t = self.scope.type_map.get(node.type)
         if t is None:
-            node.pos.comptime_error(self.scope, f'unknown type \'{node.type}\'')
+            node.pos.comptime_error(self.file, f'unknown type \'{node.type}\'')
         
         return t
     
@@ -112,6 +112,9 @@ class AnalyserPass(CompilerPass):
         return ir.Body(node.pos, node.type, nodes)
     
     def visit_Function(self, node: ir.Function):
+        if self.scope.parent is not None:
+            node.pos.comptime_error(self.file, 'functions can only be defined at the top level')
+        
         ret_type = self.visit(node.ret_type)
         params = [self.visit(param) for param in node.params]
         overloads = [self.visit(overload) for overload in node.overloads]
@@ -148,7 +151,7 @@ class AnalyserPass(CompilerPass):
     def visit_Assignment(self, node: ir.Assignment):
         symbol = cast(ir.Symbol, self.scope.symbol_table.get(node.name))
         if symbol.is_mutable:
-            node.pos.comptime_error(self.scope, f'\'{node.name}\' is not mutable')
+            node.pos.comptime_error(self.file, f'\'{node.name}\' is not mutable')
         
         symbol.value = node.value
         return self
@@ -156,7 +159,7 @@ class AnalyserPass(CompilerPass):
     def visit_Use(self, node: ir.Use):
         stdlib_path = ir.STDLIB_PATH / node.path
         if stdlib_path.exists():
-            if self.scope.file.stem == stdlib_path.stem:
+            if self.file.path.stem == stdlib_path.stem:
                 return node
             
             if (stdlib_path / f'{node.path}.py').exists():
@@ -169,11 +172,11 @@ class AnalyserPass(CompilerPass):
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
                 from gem import parse
                 
-                scope = ir.Scope(gem_file)
-                program = parse(scope, self.options)
-                AnalyserPass.run(scope, self.options, program)
+                file = ir.File(gem_file, ir.Scope())
+                program = parse(file, self.options)
+                AnalyserPass.run(file, self.options, program)
                 
-                self.scope.merge(scope)
+                self.scope.merge(file.scope)
                 
                 info(f'Imported gem library {node.path}')
         
@@ -205,7 +208,7 @@ class AnalyserPass(CompilerPass):
         symbol = self.scope.symbol_table.get(node.name)
         typ = self.scope.type_map.tryget(node.name)
         if symbol is None and typ is None:
-            node.pos.comptime_error(self.scope, f'unknown symbol \'{node.name}\'')
+            node.pos.comptime_error(self.file, f'unknown symbol \'{node.name}\'')
         
         return ir.Id(node.pos, symbol.type if symbol is not None else cast(ir.Type, typ), node.name)
     
@@ -218,17 +221,17 @@ class AnalyserPass(CompilerPass):
         true = self.visit(node.true)
         false = self.visit(node.false)
         if cond.type != self.scope.type_map.get('bool'):
-            node.pos.comptime_error(self.scope, f'expected type \'bool\' for condition, got \'{cond.type}\'')
+            node.pos.comptime_error(self.file, f'expected type \'bool\' for condition, got \'{cond.type}\'')
         
         if true.type != false.type:
-            node.pos.comptime_error(self.scope, 'ternary branches must have the same type')
+            node.pos.comptime_error(self.file, 'ternary branches must have the same type')
         
         return ir.Ternary(node.pos, true.type, cond, true, false)
     
     def visit_Call(self, node: ir.Call):
         symbol = self.scope.symbol_table.get(node.callee)
         if symbol is None:
-            node.pos.comptime_error(self.scope, f'unknown symbol \'{node.callee}\'')
+            node.pos.comptime_error(self.file, f'unknown symbol \'{node.callee}\'')
 
         func = cast(ir.Function, symbol.value)
         args = [self.visit(arg) for arg in node.args]
@@ -240,7 +243,7 @@ class AnalyserPass(CompilerPass):
             callsite = ir.Call(node.pos, overload.ret_type, overload.name, args)
             return callsite
         
-        node.pos.comptime_error(self.scope, f'no matching overload for function \'{node.callee}\' with given arguments')
+        node.pos.comptime_error(self.file, f'no matching overload for function \'{node.callee}\' with given arguments')
     
     def visit_Operation(self, node: ir.Operation):
         left = self.visit(node.left)
@@ -248,7 +251,7 @@ class AnalyserPass(CompilerPass):
         left_type, right_type = left.type, right.type
         callee = f'{left_type}.{node.op}.{right_type}'
         if callee not in self.scope.symbol_table.symbols:
-            node.pos.comptime_error(self.scope, f'invalid operation \'{node.op}\' for types \'{left_type}\' and \'{right_type}\'')
+            node.pos.comptime_error(self.file, f'invalid operation \'{node.op}\' for types \'{left_type}\' and \'{right_type}\'')
         
         return self.visit(ir.Call(node.pos, left_type, callee, [
             ir.Arg(node.pos, left_type, left), ir.Arg(node.pos, right_type, right
@@ -260,7 +263,7 @@ class AnalyserPass(CompilerPass):
         args = [ir.Arg(node.pos, value.type, value)] + (node.args if node.args is not None else [])
         symbol = self.scope.symbol_table.get(callee)
         if symbol is None:
-            node.pos.comptime_error(self.scope, f'no attribute \'{node.attr}\' for type \'{value.type}\'')
+            node.pos.comptime_error(self.file, f'no attribute \'{node.attr}\' for type \'{value.type}\'')
         
         func = cast(ir.Function, symbol.value)
         if func.flags.static:
@@ -273,7 +276,7 @@ class AnalyserPass(CompilerPass):
         callee = f'{new_type}.new'
         symbol = self.scope.symbol_table.get(callee)
         if symbol is None:
-            node.pos.comptime_error(self.scope, f'no constructor for type \'{new_type}\'')
+            node.pos.comptime_error(self.file, f'no constructor for type \'{new_type}\'')
         
         return self.visit(ir.Attribute(
             node.pos, new_type, ir.Id(node.new_type.pos, new_type, str(new_type)), 'new', node.args

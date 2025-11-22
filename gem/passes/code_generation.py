@@ -14,10 +14,10 @@ from gem.codegen_utils import (
 
 
 class CodeGenerationPass(CompilerPass):
-    def __init__(self, scope: ir.Scope, options):
-        super().__init__(scope, options)
+    def __init__(self, file: ir.File, options):
+        super().__init__(file, options)
         
-        self.module = lir.Module(scope.file.stem, lir.Context())
+        self.module = lir.Module(file.path.stem, lir.Context())
         self.module.triple = llvm.get_default_triple()
         
         self.c_registry = CRegistry(self.module, self.scope)
@@ -63,7 +63,7 @@ class CodeGenerationPass(CompilerPass):
             case 'pointer' | 'any':
                 return lir.PointerType(lir.IntType(8))
             case _:
-                node.pos.comptime_error(self.scope, f'unknown type \'{node.type}\'')
+                node.pos.comptime_error(self.file, f'unknown type \'{node.type}\'')
     
     def visit_Arg(self, node: ir.Arg):
         return self.visit(node.value)
@@ -221,7 +221,7 @@ class CodeGenerationPass(CompilerPass):
     def visit_Use(self, node: ir.Use):
         stdlib_path = ir.STDLIB_PATH / node.path
         if stdlib_path.exists():
-            if self.scope.file.stem == stdlib_path.stem:
+            if self.file.path.stem == stdlib_path.stem:
                 return node
             
             if (stdlib_path / f'{node.path}.py').exists():
@@ -234,17 +234,17 @@ class CodeGenerationPass(CompilerPass):
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
                 from gem import compile_to_obj
                 
-                scope = ir.Scope(gem_file)
-                obj_file = compile_to_obj(scope, self.options)
+                file = ir.File(gem_file, ir.Scope())
+                obj_file = compile_to_obj(file, self.options)
                 
-                for symbol in scope.symbol_table.symbols.values():
+                for symbol in file.scope.symbol_table.symbols.values():
                     func = symbol.value
                     if isinstance(func, lir.Function):
                         new_func = lir.Function(self.module, func.function_type, func.name)
                         new_func.linkage = 'external'
                 
-                self.scope.codegen_data.object_files.append(obj_file)
-                self.scope.merge(scope)
+                self.file.codegen_data.object_files.append(obj_file)
+                self.scope.merge(file.scope)
                 
                 info(f'Imported gem library {node.path}')
         
@@ -292,7 +292,7 @@ class CodeGenerationPass(CompilerPass):
             case '__buffer':
                 const = args[0]
                 if not isinstance(const, lir.Constant):
-                    node.pos.comptime_error(self.scope, 'Expected integer constant for __buffer')
+                    node.pos.comptime_error(self.file, 'Expected integer constant for __buffer')
                 
                 size = const.constant
                 return create_static_buffer(self.module, lir.IntType(8), size, '__buffer', self.builder)

@@ -9,31 +9,29 @@ from gem import ir
 
 
 class ErrorListener(ANTLRErrorListener):
-    def __init__(self, scope: ir.Scope):
-        self.scope = scope
+    def __init__(self, file: ir.File):
+        self.file = file
     
     def syntaxError(self, recognizer, offendingSymbol: CommonToken, line: int, column: int, msg, e):
         pos = ir.Position(line, column)
-        pos.comptime_error(self.scope, f'invalid syntax \'{offendingSymbol.text}\'')
+        pos.comptime_error(self.file, f'invalid syntax \'{offendingSymbol.text}\'')
 
 class IRBuilder(GemVisitor):
-    def __init__(self, scope: ir.Scope):
-        self.scope = scope
+    def __init__(self, file: ir.File):
+        self.file = file
     
     def pos(self, ctx):
         return ir.Position(ctx.start.line, ctx.start.column)
     
     def build(self):
-        lexer = GemLexer(InputStream(self.scope.src))
+        lexer = GemLexer(InputStream(self.file.path.read_text('utf-8')))
         parser = GemParser(CommonTokenStream(lexer))
         parser.removeErrorListeners()
-        parser.addErrorListener(ErrorListener(self.scope))
+        parser.addErrorListener(ErrorListener(self.file))
         return self.visitProgram(parser.program())
     
     def visitProgram(self, ctx):
-        return ir.Program(
-            self.pos(ctx), self.scope.type_map.get('any'), [self.visit(stmt) for stmt in ctx.stmt()]
-        )
+        return ir.Program(self.pos(ctx), ir.Type.new('any'), [self.visit(stmt) for stmt in ctx.stmt()])
     
     def visitType(self, ctx):
         return ir.Type(self.pos(ctx), ctx.getText(), ctx.getText())
@@ -50,14 +48,14 @@ class IRBuilder(GemVisitor):
         return ir.Return(self.pos(ctx), expr.type, expr)
     
     def visitBreak(self, ctx):
-        return ir.Break(self.pos(ctx), self.scope.type_map.get('any'))
+        return ir.Break(self.pos(ctx), ir.Type.new('any'))
     
     def visitContinue(self, ctx):
-        return ir.Continue(self.pos(ctx), self.scope.type_map.get('any'))
+        return ir.Continue(self.pos(ctx), ir.Type.new('any'))
     
     def visitBody(self, ctx):
         return ir.Body(
-            self.pos(ctx), self.scope.type_map.get('any'),
+            self.pos(ctx), ir.Type.new('any'),
             [self.visit(stmt) for stmt in ctx.bodyStmts()]
         )
     
@@ -71,7 +69,7 @@ class IRBuilder(GemVisitor):
         )
     
     def visitReturnArrow(self, ctx: GemParser.ReturnArrowContext):
-        return self.visitType(ctx.type_()) if ctx is not None else self.scope.type_map.get('nil')
+        return self.visitType(ctx.type_()) if ctx is not None else ir.Type.new('nil')
     
     def visitFuncName(self, ctx: GemParser.FuncNameContext):
         func_name = ctx.ID().getText() if ctx.ID() is not None else 'new'
@@ -107,13 +105,13 @@ class IRBuilder(GemVisitor):
     
     def visitVarAssign(self, ctx):
         return ir.Variable(
-            self.pos(ctx), self.scope.type_map.get('any'), ctx.ID().getText(), self.visit(ctx.expr()),
+            self.pos(ctx), ir.Type.new('any'), ctx.ID().getText(), self.visit(ctx.expr()),
             ctx.MUTABLE() is not None, ctx.op.text if ctx.op is not None else None
         )
     
     def visitIfStmt(self, ctx):
         return ir.If(
-            self.pos(ctx), self.scope.type_map.get('any'), self.visit(ctx.expr()),
+            self.pos(ctx), ir.Type.new('any'), self.visit(ctx.expr()),
             self.visitBody(ctx.body()), self.visitElseStmt(ctx.elseStmt()),
             [self.visitElseifStmt(elseif) for elseif in ctx.elseifStmt()]
         )
@@ -123,38 +121,36 @@ class IRBuilder(GemVisitor):
     
     def visitElseifStmt(self, ctx):
         return ir.Elseif(
-            self.pos(ctx), self.scope.type_map.get('any'),
+            self.pos(ctx), ir.Type.new('any'),
             self.visit(ctx.expr()), self.visitBody(ctx.body())
         )
     
     def visitWhileStmt(self, ctx):
         return ir.While(
-            self.pos(ctx), self.scope.type_map.get('any'), self.visit(ctx.expr()),
+            self.pos(ctx), ir.Type.new('any'), self.visit(ctx.expr()),
             self.visitBody(ctx.body())
         )
     
     def visitUseStmt(self, ctx):
-        return ir.Use(self.pos(ctx), self.scope.type_map.get('any'), ctx.STRING().getText()[1:-1])
+        return ir.Use(self.pos(ctx), ir.Type.new('any'), ctx.STRING().getText()[1:-1])
     
     def visitInt(self, ctx):
-        return ir.Int(self.pos(ctx), self.scope.type_map.get('int'), int(ctx.getText()))
+        return ir.Int(self.pos(ctx), ir.Type.new('int'), int(ctx.getText()))
     
     def visitFloat(self, ctx):
-        return ir.Float(self.pos(ctx), self.scope.type_map.get('float'), float(ctx.getText()))
+        return ir.Float(self.pos(ctx), ir.Type.new('float'), float(ctx.getText()))
     
     def visitString(self, ctx):
-        return ir.String(self.pos(ctx), self.scope.type_map.get('string'), ctx.getText()[1:-1])
+        return ir.String(self.pos(ctx), ir.Type.new('string'), ctx.getText()[1:-1])
     
     def visitBool(self, ctx):
-        return ir.Bool(self.pos(ctx), self.scope.type_map.get('bool'), ctx.getText() == 'true')
+        return ir.Bool(self.pos(ctx), ir.Type.new('bool'), ctx.getText() == 'true')
     
     def visitId(self, ctx):
-        return ir.Id(self.pos(ctx), self.scope.type_map.get('any'), ctx.getText())
+        return ir.Id(self.pos(ctx), ir.Type.new('any'), ctx.getText())
     
     def visitCall(self, ctx):
-        return ir.Call(
-            self.pos(ctx), self.scope.type_map.get('any'), ctx.ID().getText(), self.visitArgs(ctx.args())
-        )
+        return ir.Call(self.pos(ctx), ir.Type.new('any'), ctx.ID().getText(), self.visitArgs(ctx.args()))
     
     def visitParen(self, ctx):
         expr = self.visit(ctx.expr())
@@ -165,19 +161,19 @@ class IRBuilder(GemVisitor):
     
     def visitAttr(self, ctx):
         return ir.Attribute(
-            self.pos(ctx), self.scope.type_map.get('any'), self.visit(ctx.expr()), ctx.ID().getText(),
+            self.pos(ctx), ir.Type.new('any'), self.visit(ctx.expr()), ctx.ID().getText(),
             self.visitArgs(ctx.args()) if ctx.LPAREN() is not None else None
         )
     
     def visitTernary(self, ctx):
         return ir.Ternary(
-            self.pos(ctx), self.scope.type_map.get('any'), self.visit(ctx.expr(1)),
+            self.pos(ctx), ir.Type.new('any'), self.visit(ctx.expr(1)),
             self.visit(ctx.expr(0)), self.visit(ctx.expr(2))
         )
     
     def visitNew(self, ctx):
         return ir.New(
-            self.pos(ctx), self.scope.type_map.get('any'), self.visitType(ctx.type_()),
+            self.pos(ctx), ir.Type.new('any'), self.visitType(ctx.type_()),
             self.visitArgs(ctx.args())
         )
     
@@ -186,10 +182,10 @@ class IRBuilder(GemVisitor):
         op = ctx.op.text
         if isinstance(ctx.expr(), list):
             left, right = self.visit(ctx.expr(0)), self.visit(ctx.expr(1))
-            return ir.Operation(pos, self.scope.type_map.get('any'), op, left, right)
+            return ir.Operation(pos, ir.Type.new('any'), op, left, right)
         else:
             left = self.visit(ctx.expr())
-            return ir.UnaryOperation(pos, self.scope.type_map.get('any'), op, left)
+            return ir.UnaryOperation(pos, ir.Type.new('any'), op, left)
     
     def visitAddition(self, ctx):
         return self.visitOperation(ctx)

@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 from sys import exit as sys_exit
+from typing import Optional, Any
 from logging import error, info
-from typing import Union, Any
 from pathlib import Path
 
 from colorama import Fore, Style
@@ -19,8 +19,8 @@ class Position:
     def zero():
         return Position(0, 0)
 
-    def comptime_error(self, scope: 'Scope', message: str):
-        src = scope.src
+    def comptime_error(self, file: 'File', message: str):
+        src = file.path.read_text('utf-8')
         print(src.splitlines()[self.line - 1])
         print(' ' * self.column + '^')
         print(f'{Style.BRIGHT}{Fore.RED}error: {message}{Style.RESET_ALL}')
@@ -92,19 +92,16 @@ class CodegenData:
 
 @dataclass
 class Scope:
-    file: Path
-    parent: Union['Scope', None] = None
+    parent: Optional['Scope'] = None
     symbol_table: SymbolTable = field(default_factory=SymbolTable)
     type_map: TypeMap = field(default_factory=TypeMap)
     dependencies: list[Path] = field(default_factory=list)
-    codegen_data: CodegenData = field(default_factory=CodegenData)
     
     @property
     def unique_name(self):
         return f'_{self._unique_name_idx}'
 
     def __post_init__(self):
-        self.src = self.file.read_text()
         if self.parent is not None:
             self._unique_name_idx = self.parent._unique_name_idx + 1
 
@@ -112,7 +109,6 @@ class Scope:
             self.type_map = self.parent.type_map.clone()
             
             self.dependencies = self.parent.dependencies
-            self.codegen_data = self.parent.codegen_data
         else:
             self._unique_name_idx = 0
             
@@ -131,7 +127,14 @@ class Scope:
         self.type_map.merge(other.type_map)
 
     def make_child(self) -> 'Scope':
-        return Scope(self.file, self)
+        return Scope(self)
+
+@dataclass
+class File:
+    path: Path
+    scope: Scope
+    program: Optional['Program'] = None
+    codegen_data: CodegenData = field(default_factory=CodegenData)
 
 
 @dataclass(unsafe_hash=True)
@@ -150,6 +153,10 @@ class Node(ABC):
 class Type(Node):
     type: str #type: ignore
     display: str
+    
+    @staticmethod
+    def new(type: str, display: Optional[str] = None) -> 'Type':
+        return Type(Position.zero(), type, display or type)
     
     def __str__(self) -> str:
         return self.display
