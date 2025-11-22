@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from importlib import import_module
 from logging import info
-from typing import cast
+from typing import Optional, cast
 
 from llvmlite import ir as lir, binding as llvm
 
@@ -23,6 +23,8 @@ class CodeGenerationPass(CompilerPass):
         self.c_registry = CRegistry(self.module, self.scope)
         
         self.builder = lir.IRBuilder()
+        
+        self.codegen_types = {}
         
         self.string_type = define_identified_type('string', [
             lir.PointerType(lir.IntType(8)),
@@ -63,6 +65,9 @@ class CodeGenerationPass(CompilerPass):
             case 'pointer' | 'any':
                 return lir.PointerType(lir.IntType(8))
             case _:
+                if node.type in self.codegen_types:
+                    return self.codegen_types[node.type]
+                
                 node.pos.comptime_error(self.file, f'unknown type \'{node.type}\'')
     
     def visit_Arg(self, node: ir.Arg):
@@ -80,6 +85,9 @@ class CodeGenerationPass(CompilerPass):
             return self.module.get_global(node.name)
         
         if node.is_generic:
+            for overload in node.overloads:
+                self.visit(overload)
+            
             self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node))
             return node
         
@@ -212,15 +220,6 @@ class CodeGenerationPass(CompilerPass):
 
     def visit_Continue(self, _):
         self.builder.branch(self.while_test_block)
-    
-    def merge_symbols(self, scope: ir.Scope):
-        for symbol in scope.symbol_table.symbols.values():
-            func = symbol.value
-            if not isinstance(func, lir.Function) or func.linkage == 'external' or func.name in self.module.globals:
-                continue
-            
-            new_func = lir.Function(self.module, func.function_type, func.name)
-            new_func.linkage = 'external'
     
     def visit_Use(self, node: ir.Use):
         stdlib_path = ir.STDLIB_PATH / node.path

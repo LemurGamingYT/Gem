@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from importlib import import_module
+from typing import cast, Optional
 from logging import info
-from typing import cast
 
 from gem.passes import CompilerPass
 from gem import ir
@@ -111,13 +111,17 @@ class AnalyserPass(CompilerPass):
         
         return ir.Body(node.pos, node.type, nodes)
     
-    def visit_Function(self, node: ir.Function):
+    def visit_Function(self, node: ir.Function, callsite: Optional[ir.Call] = None):
         # if self.scope.parent is not None:
         #     node.pos.comptime_error(self.file, 'functions can only be defined at the top level')
         
-        if node.is_generic:
+        if node.is_generic and callsite is None:
             self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node))
-            return
+            return node
+        
+        generic_map = node.create_generic_map(callsite.args if callsite is not None else [])
+        for name, typ in generic_map.items():
+            self.scope.type_map.add_type(name, typ)
         
         ret_type = self.visit(node.ret_type)
         params = [self.visit(param) for param in node.params]
@@ -131,9 +135,11 @@ class AnalyserPass(CompilerPass):
             
             func_name = f'{extend_type}.{func_name}'
         
-        func = ir.Function(
-            node.pos, ret_type, func_name, params, node.body, overloads, flags, generic_params=node.generic_params
-        )
+        if node.is_generic:
+            generics_str = ', '.join(str(type) for type in generic_map.values())
+            func_name += f'<{generics_str}>'
+        
+        func = ir.Function(node.pos, ret_type, func_name, params, node.body, overloads, flags)
         
         self.scope.symbol_table.add(ir.Symbol(func.name, self.scope.type_map.get('function'), func))
         body = node.body
@@ -144,6 +150,10 @@ class AnalyserPass(CompilerPass):
                     self.scope.symbol_table.add(ir.Symbol(param.name, param.type, param, param.is_mutable))
                 
                 func.body = self.visit(body)
+        
+        if node.is_generic:
+            node.overloads.append(func)
+            return func
         
         return func
     
@@ -242,12 +252,16 @@ class AnalyserPass(CompilerPass):
 
         func = cast(ir.Function, symbol.value)
         args = [self.visit(arg) for arg in node.args]
-        for overload in [func] + func.overloads:
+        for overload in func.overloads + [func]:
             info(f'Checking if {overload.name}\'s arguments match')
             if not overload.match_params(args):
                 continue
             
             callsite = overload.call(node.pos, args)
+            if overload.is_generic:
+                overload = self.visit_Function(overload, callsite)
+                callsite = overload.call(node.pos, args)
+            
             return callsite
         
         node.pos.comptime_error(self.file, f'no matching overload for function \'{node.callee}\' with given arguments')

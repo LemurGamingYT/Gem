@@ -274,6 +274,16 @@ class Function(Node):
 
     def call(self, pos: Position, args: list[Arg]):
         return Call(pos, self.ret_type, self.name, args)
+    
+    def create_generic_map(self, args: list[Arg]):
+        generic_map = {}
+        for param, arg in zip(self.params, args):
+            if str(param.type) not in self.generic_params:
+                continue
+            
+            generic_map[str(param.type)] = arg.type
+        
+        return generic_map
 
 @dataclass
 class Variable(Node):
