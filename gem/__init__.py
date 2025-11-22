@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from sys import exit as sys_exit
 from subprocess import run
 from logging import info
@@ -12,42 +11,40 @@ from gem import ir
 
 VERSION = '0.0.1'
 
-@dataclass
-class CompileOptions:
-    clean: bool = False
-    optimize: bool = False
-
-def parse(file: ir.File, _: CompileOptions):
+def parse(file: ir.File):
     ir_builder = IRBuilder(file)
     program = ir_builder.build()
     program.nodes.insert(0, ir.Use(program.pos, program.type, 'core'))
     file.program = program
     return program
 
-def compile_to_str(file: ir.File, options: CompileOptions):
-    program = parse(file, options)
+def compile_to_str(file: ir.File):
+    program = parse(file)
     info(f'Parsed Program:\n{program}')
     
-    analysed_program = AnalyserPass.run(file, options, program)
+    analysed_program = AnalyserPass.run(file, program)
     info(f'Analysed Program:\n{analysed_program}')
     file.program = analysed_program
     
-    return CodeGenerationPass.run(file, options, analysed_program)
+    return CodeGenerationPass.run(file, analysed_program)
 
-def compile_to_ir(file: ir.File, options: CompileOptions):
-    code = compile_to_str(file, options)
+def compile_to_ir(file: ir.File):
+    code = compile_to_str(file)
     ll_file = file.path.with_suffix('.ll')
     ll_file.write_text(code)
     info(f'Wrote LLVM IR to {ll_file}')
     
     return ll_file
     
-def compile_to_obj(file: ir.File, options: CompileOptions):
-    ll_file = compile_to_ir(file, options)
+def compile_to_obj(file: ir.File):
+    ll_file = compile_to_ir(file)
     obj_file = file.path.with_suffix('.o')
     flags = ['-Wno-override-module', '-Wall', '-Werror', '-Wpedantic', '-Wextra']
-    if options.optimize:
+    if file.options.optimize:
         flags.append('-O3')
+    
+    if file.options.debug:
+        flags.append('-g')
     
     flags_str = ' '.join(flags)
     cmd = f'clang -c -o {obj_file} {ll_file} {flags_str}'
@@ -55,13 +52,13 @@ def compile_to_obj(file: ir.File, options: CompileOptions):
     run(cmd, shell=True)
     info(f'Wrote object file to {obj_file}')
     
-    if options.clean:
+    if file.options.clean:
         ll_file.unlink()
     
     return obj_file
 
-def compile_to_exe(file: ir.File, options: CompileOptions):
-    obj_file = compile_to_obj(file, options)
+def compile_to_exe(file: ir.File):
+    obj_file = compile_to_obj(file)
     exe_file = file.path.with_suffix('.exe')
     object_files_str = ' '.join(str(obj_file) for obj_file in file.codegen_data.object_files)
     cmd = f'clang -o {exe_file} {obj_file} {object_files_str}'
@@ -69,7 +66,7 @@ def compile_to_exe(file: ir.File, options: CompileOptions):
     run(cmd, shell=True)
     info(f'Wrote executable to {exe_file}')
     
-    if options.clean:
+    if file.options.clean:
         obj_file.unlink()
 
 class ArgParser:
@@ -132,6 +129,6 @@ Available actions:\n{actions_str}""")
             print(f'File \'{file_path}\' is not a file')
             sys_exit(1)
         
-        file = ir.File(path, ir.Scope())
-        options = CompileOptions(self.option('clean'))
-        compile_to_exe(file, options)
+        options = ir.CompileOptions(self.option('clean'), self.option('optimize'), self.option('debug'))
+        file = ir.File(path, ir.Scope(), options)
+        compile_to_exe(file)

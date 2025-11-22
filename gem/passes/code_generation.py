@@ -14,8 +14,8 @@ from gem.codegen_utils import (
 
 
 class CodeGenerationPass(CompilerPass):
-    def __init__(self, file: ir.File, options):
-        super().__init__(file, options)
+    def __init__(self, file: ir.File):
+        super().__init__(file)
         
         self.module = lir.Module(file.path.stem, lir.Context())
         self.module.triple = llvm.get_default_triple()
@@ -78,6 +78,10 @@ class CodeGenerationPass(CompilerPass):
     def visit_Function(self, node: ir.Function):
         if node.name in self.module.globals:
             return self.module.get_global(node.name)
+        
+        if node.is_generic:
+            self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node))
+            return node
         
         ret_type = self.visit(node.ret_type)
         func_type = lir.FunctionType(ret_type, [self.visit(param) for param in node.params])
@@ -234,8 +238,8 @@ class CodeGenerationPass(CompilerPass):
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
                 from gem import compile_to_obj
                 
-                file = ir.File(gem_file, ir.Scope())
-                obj_file = compile_to_obj(file, self.options)
+                file = ir.File(gem_file, ir.Scope(), self.file.options)
+                obj_file = compile_to_obj(file)
                 
                 for symbol in file.scope.symbol_table.symbols.values():
                     func = symbol.value

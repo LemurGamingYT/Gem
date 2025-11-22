@@ -8,8 +8,7 @@ from gem.ir import File, Node, Program, Scope
 NodeType = TypeVar('NodeType', bound=Node)
 
 class CompilerPass(ABC):
-    def __init__(self, file: File, options):
-        self.options = options
+    def __init__(self, file: File):
         self.file = file
     
     @property
@@ -21,8 +20,8 @@ class CompilerPass(ABC):
         self.file.scope = value
     
     @classmethod
-    def run(cls, file: File, options, program: Program) -> Any:
-        self = cls(file, options)
+    def run(cls, file: File, program: Program) -> Any:
+        self = cls(file)
         return self.visit(program)
     
     def visit(self, node: NodeType) -> NodeType | Any:

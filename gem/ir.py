@@ -4,6 +4,7 @@ from sys import exit as sys_exit
 from typing import Optional, Any
 from logging import error, info
 from pathlib import Path
+from copy import copy
 
 from colorama import Fore, Style
 
@@ -25,6 +26,10 @@ class Position:
         print(' ' * self.column + '^')
         print(f'{Style.BRIGHT}{Fore.RED}error: {message}{Style.RESET_ALL}')
         error(message)
+        
+        if file.options.debug:
+            raise NotImplementedError(message)
+        
         sys_exit(1)
 
 @dataclass
@@ -130,9 +135,16 @@ class Scope:
         return Scope(self)
 
 @dataclass
+class CompileOptions:
+    clean: bool = False
+    optimize: bool = False
+    debug: bool = False
+
+@dataclass
 class File:
     path: Path
     scope: Scope
+    options: CompileOptions
     program: Optional['Program'] = None
     codegen_data: CodegenData = field(default_factory=CodegenData)
 
@@ -148,6 +160,9 @@ class Node(ABC):
     
     def to_arg(self) -> 'Arg':
         return Arg(self.pos, self.type, self)
+    
+    def clone(self) -> 'Node':
+        return copy(self)
 
 @dataclass(unsafe_hash=True)
 class Type(Node):
@@ -256,6 +271,9 @@ class Function(Node):
         return f"""{signature} {{
 {self.body}
 }}"""
+
+    def call(self, pos: Position, args: list[Arg]):
+        return Call(pos, self.ret_type, self.name, args)
 
 @dataclass
 class Variable(Node):

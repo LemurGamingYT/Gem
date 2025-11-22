@@ -8,8 +8,8 @@ from gem import ir
 
 
 class AnalyserPass(CompilerPass):
-    def __init__(self, file: ir.File, options):
-        super().__init__(file, options)
+    def __init__(self, file: ir.File):
+        super().__init__(file)
         
         self.declare_intrinsic('panic', self.scope.type_map.get('nil'), [
             ir.Param(ir.Position.zero(), self.scope.type_map.get('string'), 'msg')
@@ -112,8 +112,12 @@ class AnalyserPass(CompilerPass):
         return ir.Body(node.pos, node.type, nodes)
     
     def visit_Function(self, node: ir.Function):
-        if self.scope.parent is not None:
-            node.pos.comptime_error(self.file, 'functions can only be defined at the top level')
+        # if self.scope.parent is not None:
+        #     node.pos.comptime_error(self.file, 'functions can only be defined at the top level')
+        
+        if node.is_generic:
+            self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node))
+            return
         
         ret_type = self.visit(node.ret_type)
         params = [self.visit(param) for param in node.params]
@@ -122,8 +126,10 @@ class AnalyserPass(CompilerPass):
         flags = node.flags
         func_name = node.name
         if extend_type is not None:
+            if func_name == 'new':
+                flags.static = True
+            
             func_name = f'{extend_type}.{func_name}'
-            flags.static = True
         
         func = ir.Function(
             node.pos, ret_type, func_name, params, node.body, overloads, flags, generic_params=node.generic_params
@@ -133,6 +139,7 @@ class AnalyserPass(CompilerPass):
         body = node.body
         if body is not None:
             with self.child_scope():
+                info(f'Entering function {func.name}\'s body')
                 for param in params:
                     self.scope.symbol_table.add(ir.Symbol(param.name, param.type, param, param.is_mutable))
                 
@@ -172,9 +179,9 @@ class AnalyserPass(CompilerPass):
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
                 from gem import parse
                 
-                file = ir.File(gem_file, ir.Scope())
-                program = parse(file, self.options)
-                AnalyserPass.run(file, self.options, program)
+                file = ir.File(gem_file, ir.Scope(), self.file.options)
+                program = parse(file)
+                AnalyserPass.run(file, program)
                 
                 self.scope.merge(file.scope)
                 
@@ -240,7 +247,7 @@ class AnalyserPass(CompilerPass):
             if not overload.match_params(args):
                 continue
             
-            callsite = ir.Call(node.pos, overload.ret_type, overload.name, args)
+            callsite = overload.call(node.pos, args)
             return callsite
         
         node.pos.comptime_error(self.file, f'no matching overload for function \'{node.callee}\' with given arguments')
