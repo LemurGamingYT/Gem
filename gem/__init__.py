@@ -41,7 +41,7 @@ def compile_to_obj(file: ir.File):
     obj_file = file.path.with_suffix('.o')
     flags = ['-Wno-override-module', '-Wall', '-Werror', '-Wpedantic', '-Wextra']
     if file.options.optimize:
-        flags.append('-O3')
+        flags.append('-O2')
     
     if file.options.debug:
         flags.append('-g')

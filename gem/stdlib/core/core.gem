@@ -23,3 +23,7 @@ fn string.to_string(string s) -> string {
 fn bool.to_string(bool b) -> string {
     return "true" if b else "false"
 }
+
+fn print_string(string value) {
+    __print_pointer(value.ptr)
+}

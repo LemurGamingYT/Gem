@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from importlib import import_module
 from logging import info
-from typing import Optional, cast
+from typing import cast
 
 from llvmlite import ir as lir, binding as llvm
 
@@ -344,6 +344,8 @@ class CodeGenerationPass(CompilerPass):
                 return self.builder.add(args[0], args[1], 'int.+.int')
             case 'float.+.float':
                 return self.builder.fadd(args[0], args[1], 'float.+.float')
+            case 'string.ptr':
+                return get_struct_field(self.builder, args[0], 0, 'string.ptr')
     
     def visit_Call(self, node: ir.Call):
         if (result := self.handle_intrinsics(node)) is not None:
