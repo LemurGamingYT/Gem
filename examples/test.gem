@@ -1,4 +1,3 @@
 fn main() -> int {
-    print_string("Hello world")
     return 0
 }

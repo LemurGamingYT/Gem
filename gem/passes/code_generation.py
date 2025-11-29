@@ -279,8 +279,7 @@ class CodeGenerationPass(CompilerPass):
     def visit_Ternary(self, node: ir.Ternary):
         return self.builder.select(self.visit(node.cond), self.visit(node.true), self.visit(node.false), 'ternary')
     
-    def handle_intrinsics(self, node: ir.Call):
-        args = [cast(lir.Value, self.visit(arg)) for arg in node.args]
+    def handle_intrinsics(self, node: ir.Call, args: list[lir.Value]):
         match node.callee:
             case 'panic':
                 exit = self.c_registry.get('exit')
@@ -348,7 +347,8 @@ class CodeGenerationPass(CompilerPass):
                 return get_struct_field(self.builder, args[0], 0, 'string.ptr')
     
     def visit_Call(self, node: ir.Call):
-        if (result := self.handle_intrinsics(node)) is not None:
+        args = [cast(lir.Value, self.visit(arg)) for arg in node.args]
+        if (result := self.handle_intrinsics(node, args)) is not None:
             return result
         
         symbol = self.scope.symbol_table.get(node.callee)
@@ -358,7 +358,6 @@ class CodeGenerationPass(CompilerPass):
         if isinstance(func, ir.Function):
             func = self.visit(func)
         
-        args = [cast(lir.Value, self.visit(arg)) for arg in node.args]
         return self.builder.call(func, args, node.callee)
     
     def visit_Attribute(self, node: ir.Attribute):
