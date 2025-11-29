@@ -4,63 +4,67 @@ main.py (line 13) [INFO] - Target: x86_64-pc-windows-msvc
 __init__.py (line 23) [INFO] - Parsed Program:
 use "core"
 fn main() -> int {
-print_string("Hello world")
+any s = "Hey"
+print_string(s)
+__free(s.ptr)
 return 0
 }
-analyser.py (line 81) [INFO] - Declared intrinsic panic
-analyser.py (line 81) [INFO] - Declared intrinsic __is_null
-analyser.py (line 81) [INFO] - Declared intrinsic __buffer
-analyser.py (line 81) [INFO] - Declared intrinsic __create_string
-analyser.py (line 81) [INFO] - Declared intrinsic __alloc
-analyser.py (line 81) [INFO] - Declared intrinsic __free
-analyser.py (line 81) [INFO] - Declared intrinsic __memcpy
-analyser.py (line 81) [INFO] - Declared intrinsic __format_int
-analyser.py (line 81) [INFO] - Declared intrinsic __format_float
-analyser.py (line 81) [INFO] - Declared intrinsic __print_pointer
-analyser.py (line 81) [INFO] - Declared intrinsic int.+.int
-analyser.py (line 81) [INFO] - Declared intrinsic float.+.float
-analyser.py (line 81) [INFO] - Declared intrinsic string.ptr
-analyser.py (line 81) [INFO] - Declared intrinsic panic
-analyser.py (line 81) [INFO] - Declared intrinsic __is_null
-analyser.py (line 81) [INFO] - Declared intrinsic __buffer
-analyser.py (line 81) [INFO] - Declared intrinsic __create_string
-analyser.py (line 81) [INFO] - Declared intrinsic __alloc
-analyser.py (line 81) [INFO] - Declared intrinsic __free
-analyser.py (line 81) [INFO] - Declared intrinsic __memcpy
-analyser.py (line 81) [INFO] - Declared intrinsic __format_int
-analyser.py (line 81) [INFO] - Declared intrinsic __format_float
-analyser.py (line 81) [INFO] - Declared intrinsic __print_pointer
-analyser.py (line 81) [INFO] - Declared intrinsic int.+.int
-analyser.py (line 81) [INFO] - Declared intrinsic float.+.float
-analyser.py (line 81) [INFO] - Declared intrinsic string.ptr
-analyser.py (line 152) [INFO] - Entering function string.new's body
-analyser.py (line 260) [INFO] - Checking if int.+.int's arguments match
-analyser.py (line 260) [INFO] - Checking if __alloc's arguments match
-analyser.py (line 260) [INFO] - Checking if __memcpy's arguments match
-analyser.py (line 260) [INFO] - Checking if __create_string's arguments match
-analyser.py (line 152) [INFO] - Entering function int.to_string's body
-analyser.py (line 260) [INFO] - Checking if __buffer's arguments match
-analyser.py (line 260) [INFO] - Checking if __format_int's arguments match
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 152) [INFO] - Entering function float.to_string's body
-analyser.py (line 260) [INFO] - Checking if __buffer's arguments match
-analyser.py (line 260) [INFO] - Checking if __format_float's arguments match
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 152) [INFO] - Entering function string.to_string's body
-analyser.py (line 152) [INFO] - Entering function bool.to_string's body
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 152) [INFO] - Entering function print_string's body
-analyser.py (line 260) [INFO] - Checking if string.ptr's arguments match
-analyser.py (line 260) [INFO] - Checking if __print_pointer's arguments match
-analyser.py (line 202) [INFO] - Imported gem library core
-analyser.py (line 152) [INFO] - Entering function main's body
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 260) [INFO] - Checking if print_string's arguments match
+analyser.py (line 77) [INFO] - Declared intrinsic panic
+analyser.py (line 77) [INFO] - Declared intrinsic __buffer
+analyser.py (line 77) [INFO] - Declared intrinsic __create_string
+analyser.py (line 77) [INFO] - Declared intrinsic __alloc
+analyser.py (line 77) [INFO] - Declared intrinsic __free
+analyser.py (line 77) [INFO] - Declared intrinsic __memcpy
+analyser.py (line 77) [INFO] - Declared intrinsic __format_int
+analyser.py (line 77) [INFO] - Declared intrinsic __format_float
+analyser.py (line 77) [INFO] - Declared intrinsic __print_pointer
+analyser.py (line 77) [INFO] - Declared intrinsic int.+.int
+analyser.py (line 77) [INFO] - Declared intrinsic float.+.float
+analyser.py (line 77) [INFO] - Declared intrinsic string.ptr
+analyser.py (line 77) [INFO] - Declared intrinsic panic
+analyser.py (line 77) [INFO] - Declared intrinsic __buffer
+analyser.py (line 77) [INFO] - Declared intrinsic __create_string
+analyser.py (line 77) [INFO] - Declared intrinsic __alloc
+analyser.py (line 77) [INFO] - Declared intrinsic __free
+analyser.py (line 77) [INFO] - Declared intrinsic __memcpy
+analyser.py (line 77) [INFO] - Declared intrinsic __format_int
+analyser.py (line 77) [INFO] - Declared intrinsic __format_float
+analyser.py (line 77) [INFO] - Declared intrinsic __print_pointer
+analyser.py (line 77) [INFO] - Declared intrinsic int.+.int
+analyser.py (line 77) [INFO] - Declared intrinsic float.+.float
+analyser.py (line 77) [INFO] - Declared intrinsic string.ptr
+analyser.py (line 151) [INFO] - Entering function string.new's body
+analyser.py (line 259) [INFO] - Checking if int.+.int's arguments match
+analyser.py (line 259) [INFO] - Checking if __alloc's arguments match
+analyser.py (line 259) [INFO] - Checking if __memcpy's arguments match
+analyser.py (line 259) [INFO] - Checking if __create_string's arguments match
+analyser.py (line 151) [INFO] - Entering function int.to_string's body
+analyser.py (line 259) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 259) [INFO] - Checking if __format_int's arguments match
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 151) [INFO] - Entering function float.to_string's body
+analyser.py (line 259) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 259) [INFO] - Checking if __format_float's arguments match
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 151) [INFO] - Entering function string.to_string's body
+analyser.py (line 151) [INFO] - Entering function bool.to_string's body
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 151) [INFO] - Entering function print_string's body
+analyser.py (line 259) [INFO] - Checking if string.ptr's arguments match
+analyser.py (line 259) [INFO] - Checking if __print_pointer's arguments match
+analyser.py (line 201) [INFO] - Imported gem library core
+analyser.py (line 151) [INFO] - Entering function main's body
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 259) [INFO] - Checking if print_string's arguments match
+analyser.py (line 259) [INFO] - Checking if string.ptr's arguments match
+analyser.py (line 259) [INFO] - Checking if __free's arguments match
 __init__.py (line 26) [INFO] - Analysed Program:
 use "core"
 fn main() -> int {
-print_string(string.new(str_lit("Hello world"), 11))
+string s = string.new(str_lit("Hey"), 3)
+print_string(s)
+__free(string.ptr(s))
 return 0
 }
 c_registry.py (line 73) [INFO] - Registered C function 'malloc'
@@ -97,39 +101,38 @@ return "true" if b else "false"
 fn print_string(string value) -> nil {
 __print_pointer(value.ptr)
 }
-analyser.py (line 81) [INFO] - Declared intrinsic panic
-analyser.py (line 81) [INFO] - Declared intrinsic __is_null
-analyser.py (line 81) [INFO] - Declared intrinsic __buffer
-analyser.py (line 81) [INFO] - Declared intrinsic __create_string
-analyser.py (line 81) [INFO] - Declared intrinsic __alloc
-analyser.py (line 81) [INFO] - Declared intrinsic __free
-analyser.py (line 81) [INFO] - Declared intrinsic __memcpy
-analyser.py (line 81) [INFO] - Declared intrinsic __format_int
-analyser.py (line 81) [INFO] - Declared intrinsic __format_float
-analyser.py (line 81) [INFO] - Declared intrinsic __print_pointer
-analyser.py (line 81) [INFO] - Declared intrinsic int.+.int
-analyser.py (line 81) [INFO] - Declared intrinsic float.+.float
-analyser.py (line 81) [INFO] - Declared intrinsic string.ptr
-analyser.py (line 152) [INFO] - Entering function string.new's body
-analyser.py (line 260) [INFO] - Checking if int.+.int's arguments match
-analyser.py (line 260) [INFO] - Checking if __alloc's arguments match
-analyser.py (line 260) [INFO] - Checking if __memcpy's arguments match
-analyser.py (line 260) [INFO] - Checking if __create_string's arguments match
-analyser.py (line 152) [INFO] - Entering function int.to_string's body
-analyser.py (line 260) [INFO] - Checking if __buffer's arguments match
-analyser.py (line 260) [INFO] - Checking if __format_int's arguments match
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 152) [INFO] - Entering function float.to_string's body
-analyser.py (line 260) [INFO] - Checking if __buffer's arguments match
-analyser.py (line 260) [INFO] - Checking if __format_float's arguments match
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 152) [INFO] - Entering function string.to_string's body
-analyser.py (line 152) [INFO] - Entering function bool.to_string's body
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 260) [INFO] - Checking if string.new's arguments match
-analyser.py (line 152) [INFO] - Entering function print_string's body
-analyser.py (line 260) [INFO] - Checking if string.ptr's arguments match
-analyser.py (line 260) [INFO] - Checking if __print_pointer's arguments match
+analyser.py (line 77) [INFO] - Declared intrinsic panic
+analyser.py (line 77) [INFO] - Declared intrinsic __buffer
+analyser.py (line 77) [INFO] - Declared intrinsic __create_string
+analyser.py (line 77) [INFO] - Declared intrinsic __alloc
+analyser.py (line 77) [INFO] - Declared intrinsic __free
+analyser.py (line 77) [INFO] - Declared intrinsic __memcpy
+analyser.py (line 77) [INFO] - Declared intrinsic __format_int
+analyser.py (line 77) [INFO] - Declared intrinsic __format_float
+analyser.py (line 77) [INFO] - Declared intrinsic __print_pointer
+analyser.py (line 77) [INFO] - Declared intrinsic int.+.int
+analyser.py (line 77) [INFO] - Declared intrinsic float.+.float
+analyser.py (line 77) [INFO] - Declared intrinsic string.ptr
+analyser.py (line 151) [INFO] - Entering function string.new's body
+analyser.py (line 259) [INFO] - Checking if int.+.int's arguments match
+analyser.py (line 259) [INFO] - Checking if __alloc's arguments match
+analyser.py (line 259) [INFO] - Checking if __memcpy's arguments match
+analyser.py (line 259) [INFO] - Checking if __create_string's arguments match
+analyser.py (line 151) [INFO] - Entering function int.to_string's body
+analyser.py (line 259) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 259) [INFO] - Checking if __format_int's arguments match
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 151) [INFO] - Entering function float.to_string's body
+analyser.py (line 259) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 259) [INFO] - Checking if __format_float's arguments match
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 151) [INFO] - Entering function string.to_string's body
+analyser.py (line 151) [INFO] - Entering function bool.to_string's body
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 259) [INFO] - Checking if string.new's arguments match
+analyser.py (line 151) [INFO] - Entering function print_string's body
+analyser.py (line 259) [INFO] - Checking if string.ptr's arguments match
+analyser.py (line 259) [INFO] - Checking if __print_pointer's arguments match
 __init__.py (line 26) [INFO] - Analysed Program:
 use "core"
 static fn string.new(pointer ptr, int length) -> string {

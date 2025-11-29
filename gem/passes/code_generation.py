@@ -282,6 +282,8 @@ class CodeGenerationPass(CompilerPass):
     def handle_intrinsics(self, node: ir.Call, args: list[lir.Value]):
         match node.callee:
             case 'panic':
+                self.builder.comment('panic intrinsic')
+                
                 exit = self.c_registry.get('exit')
                 puts = self.c_registry.get('puts')
                 
@@ -289,9 +291,9 @@ class CodeGenerationPass(CompilerPass):
                 self.builder.call(puts, [ptr])
                 self.builder.call(exit, [llint(1)])
                 return self.builder.unreachable()
-            case '__is_null':
-                return self.builder.icmp_signed('==', args[0], NULL(), '__is_null')
             case '__buffer':
+                self.builder.comment('__buffer intrinsic')
+                
                 const = args[0]
                 if not isinstance(const, lir.Constant):
                     node.pos.comptime_error(self.file, 'Expected integer constant for __buffer')
@@ -299,28 +301,41 @@ class CodeGenerationPass(CompilerPass):
                 size = const.constant
                 return create_static_buffer(self.module, lir.IntType(8), size, '__buffer', self.builder)
             case '__create_string':
+                self.builder.comment('__create_string intrinsic')
                 return create_struct_value(self.builder, self.string_type, args, 'string')
             case '__alloc':
+                self.builder.comment('__alloc intrinsic')
+                
                 malloc = self.c_registry.get('malloc')
                 puts = self.c_registry.get('puts')
                 exit = self.c_registry.get('exit')
                 
                 ptr = self.builder.call(malloc, args, '__alloc')
-                is_null = self.builder.icmp_signed('==', ptr, NULL(), '__alloc_ptr')
+                is_null = self.builder.icmp_signed('==', ptr, NULL(), 'is_null')
                 with self.builder.if_then(is_null, False):
-                    error = create_string_constant(self.module, 'out of memory', '__alloc_error')
+                    if '__alloc_error' in self.module.globals:
+                        error = self.module.get_global('__alloc_error')
+                    else:
+                        error = create_string_constant(self.module, 'out of memory', '__alloc_error')
+                    
                     self.builder.call(puts, [error])
                     self.builder.call(exit, [llint(1)])
                     self.builder.unreachable()
                 
                 return ptr
             case '__free':
+                self.builder.comment('__free intrinsic')
+                
                 free = self.c_registry.get('free')
                 return self.builder.call(free, args)
             case '__memcpy':
+                self.builder.comment('__memcpy intrinsic')
+                
                 memcpy = self.c_registry.get('memcpy')
                 return self.builder.call(memcpy, args, '__memcpy')
             case '__format_int':
+                self.builder.comment('__format_int intrinsic')
+                
                 snprintf = self.c_registry.get('snprintf')
                 if 'int_fmt' in self.module.globals:
                     fmt = self.module.get_global('int_fmt')
@@ -329,6 +344,8 @@ class CodeGenerationPass(CompilerPass):
                 
                 return self.builder.call(snprintf, [args[0], args[1], fmt, args[2]], '__format_int')
             case '__format_float':
+                self.builder.comment('__format_float intrinsic')
+                
                 snprintf = self.c_registry.get('snprintf')
                 if 'float_fmt' in self.module.globals:
                     fmt = self.module.get_global('float_fmt')
@@ -337,13 +354,21 @@ class CodeGenerationPass(CompilerPass):
                 
                 return self.builder.call(snprintf, [args[0], args[1], fmt, args[2]], '__format_float')
             case '__print_pointer':
+                self.builder.comment('__print_pointer intrinsic')
+                
                 puts = self.c_registry.get('puts')
                 return self.builder.call(puts, args, '__print_pointer')
             case 'int.+.int':
+                self.builder.comment('int.+.int intrinsic')
+                
                 return self.builder.add(args[0], args[1], 'int.+.int')
             case 'float.+.float':
+                self.builder.comment('float.+.float intrinsic')
+                
                 return self.builder.fadd(args[0], args[1], 'float.+.float')
             case 'string.ptr':
+                self.builder.comment('string.ptr intrinsic')
+                
                 return get_struct_field(self.builder, args[0], 0, 'string.ptr')
     
     def visit_Call(self, node: ir.Call):

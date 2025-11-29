@@ -15,10 +15,6 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), self.scope.type_map.get('string'), 'msg')
         ])
         
-        self.declare_intrinsic('__is_null', self.scope.type_map.get('bool'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
-        ])
-        
         self.declare_intrinsic('__buffer', self.scope.type_map.get('pointer'), [
             ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'size')
         ])
@@ -116,6 +112,9 @@ class AnalyserPass(CompilerPass):
         return ir.Body(node.pos, node.type, nodes)
     
     def visit_Function(self, node: ir.Function, callsite: Optional[ir.Call] = None):
+        if node.name in self.scope.symbol_table.symbols:
+            node.pos.comptime_error(self.file, f'function \'{node.name}\' already defined')
+        
         # if self.scope.parent is not None:
         #     node.pos.comptime_error(self.file, 'functions can only be defined at the top level')
         

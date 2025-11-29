@@ -1,3 +1,4 @@
+from ctypes import ArgumentError
 from typing import Any, Optional, Callable, Iterable
 
 from llvmlite import ir, binding as llvm
@@ -159,23 +160,25 @@ def create_string_constant(
         text += '\0'
     
     const_type = ir.ArrayType(ir.IntType(8), len(text))
-    const_name = name
-    if builder is None:
-        const_name = 'str'
-    
-    const = ir.GlobalVariable(
-        module, const_type,
-        module.get_unique_name(const_name)
-    )
+    if name == '' and builder is None:
+        const = ir.GlobalVariable(
+            module, const_type,
+            module.get_unique_name('str')
+        )
+    else:
+        const = ir.GlobalVariable(
+            module, const_type,
+            module.get_unique_name(name)
+        )
     
     const.initializer = ir.Constant(const_type, bytearray(text.encode('utf-8')))
     const.global_constant = True
     const.linkage = 'internal'
     
-    if builder is None:
-        return ir.Constant.gep(const, [zero(32), zero(32)])
-    else:
+    if builder is not None:
         return builder.gep(const, [zero(32), zero(32)], True, name)
+    else:
+        return ir.Constant.gep(const, [zero(32), zero(32)])
 
 
 def create_static_buffer(
