@@ -31,10 +31,13 @@ class IRBuilder(GemVisitor):
         return self.visitProgram(parser.program())
     
     def visitProgram(self, ctx):
-        return ir.Program(self.pos(ctx), ir.Type.new('any'), [self.visit(stmt) for stmt in ctx.stmt()])
+        return ir.Program(self.pos(ctx), ir.Type('any'), [self.visit(stmt) for stmt in ctx.stmt()])
     
     def visitType(self, ctx):
-        return ir.Type(self.pos(ctx), ctx.getText(), ctx.getText())
+        if ctx.AMPERSAND() is not None:
+            return ir.ReferenceType(self.visitType(ctx.type_()))
+        
+        return ir.Type(ctx.getText())
     
     def visitArgs(self, ctx):
         return [self.visitArg(arg) for arg in ctx.arg()] if ctx is not None else []
@@ -48,14 +51,14 @@ class IRBuilder(GemVisitor):
         return ir.Return(self.pos(ctx), expr.type, expr)
     
     def visitBreak(self, ctx):
-        return ir.Break(self.pos(ctx), ir.Type.new('any'))
+        return ir.Break(self.pos(ctx), ir.Type('any'))
     
     def visitContinue(self, ctx):
-        return ir.Continue(self.pos(ctx), ir.Type.new('any'))
+        return ir.Continue(self.pos(ctx), ir.Type('any'))
     
     def visitBody(self, ctx):
         return ir.Body(
-            self.pos(ctx), ir.Type.new('any'),
+            self.pos(ctx), ir.Type('any'),
             [self.visit(stmt) for stmt in ctx.bodyStmts()]
         )
     
@@ -69,7 +72,7 @@ class IRBuilder(GemVisitor):
         )
     
     def visitReturnArrow(self, ctx: GemParser.ReturnArrowContext):
-        return self.visitType(ctx.type_()) if ctx is not None else ir.Type.new('nil')
+        return self.visitType(ctx.type_()) if ctx is not None else ir.Type('nil')
     
     def visitFuncName(self, ctx: GemParser.FuncNameContext):
         func_name = ctx.ID().getText() if ctx.ID() is not None else 'new'
@@ -95,23 +98,23 @@ class IRBuilder(GemVisitor):
     def visitFuncAssign(self, ctx):
         return_type = self.visitReturnArrow(ctx.returnArrow())
         func_name, extend_type = self.visitFuncName(ctx.funcName())
-        generic_params = self.visitGenericParams(ctx.genericParams()) if ctx.genericParams() is not None else []
+        # generic_params = self.visitGenericParams(ctx.genericParams()) if ctx.genericParams() is not None else []
         return ir.Function(
             self.pos(ctx), return_type, func_name,
             self.visitParams(ctx.params()), self.visitBody(ctx.body()),
             flags=ir.FunctionFlags(),
-            extend_type=extend_type, generic_params=generic_params
+            extend_type=extend_type,# generic_params=generic_params
         )
     
     def visitVarAssign(self, ctx):
         return ir.Variable(
-            self.pos(ctx), ir.Type.new('any'), ctx.ID().getText(), self.visit(ctx.expr()),
+            self.pos(ctx), ir.Type('any'), ctx.ID().getText(), self.visit(ctx.expr()),
             ctx.MUTABLE() is not None, ctx.op.text if ctx.op is not None else None
         )
     
     def visitIfStmt(self, ctx):
         return ir.If(
-            self.pos(ctx), ir.Type.new('any'), self.visit(ctx.expr()),
+            self.pos(ctx), ir.Type('any'), self.visit(ctx.expr()),
             self.visitBody(ctx.body()), self.visitElseStmt(ctx.elseStmt()),
             [self.visitElseifStmt(elseif) for elseif in ctx.elseifStmt()]
         )
@@ -121,36 +124,36 @@ class IRBuilder(GemVisitor):
     
     def visitElseifStmt(self, ctx):
         return ir.Elseif(
-            self.pos(ctx), ir.Type.new('any'),
+            self.pos(ctx), ir.Type('any'),
             self.visit(ctx.expr()), self.visitBody(ctx.body())
         )
     
     def visitWhileStmt(self, ctx):
         return ir.While(
-            self.pos(ctx), ir.Type.new('any'), self.visit(ctx.expr()),
+            self.pos(ctx), ir.Type('any'), self.visit(ctx.expr()),
             self.visitBody(ctx.body())
         )
     
     def visitUseStmt(self, ctx):
-        return ir.Use(self.pos(ctx), ir.Type.new('any'), ctx.STRING().getText()[1:-1])
+        return ir.Use(self.pos(ctx), ir.Type('any'), ctx.STRING().getText()[1:-1])
     
     def visitInt(self, ctx):
-        return ir.Int(self.pos(ctx), ir.Type.new('int'), int(ctx.getText()))
+        return ir.Int(self.pos(ctx), ir.Type('int'), int(ctx.getText()))
     
     def visitFloat(self, ctx):
-        return ir.Float(self.pos(ctx), ir.Type.new('float'), float(ctx.getText()))
+        return ir.Float(self.pos(ctx), ir.Type('float'), float(ctx.getText()))
     
     def visitString(self, ctx):
-        return ir.String(self.pos(ctx), ir.Type.new('string'), ctx.getText()[1:-1])
+        return ir.String(self.pos(ctx), ir.Type('string'), ctx.getText()[1:-1])
     
     def visitBool(self, ctx):
-        return ir.Bool(self.pos(ctx), ir.Type.new('bool'), ctx.getText() == 'true')
+        return ir.Bool(self.pos(ctx), ir.Type('bool'), ctx.getText() == 'true')
     
     def visitId(self, ctx):
-        return ir.Id(self.pos(ctx), ir.Type.new('any'), ctx.getText())
+        return ir.Id(self.pos(ctx), ir.Type('any'), ctx.getText())
     
     def visitCall(self, ctx):
-        return ir.Call(self.pos(ctx), ir.Type.new('any'), ctx.ID().getText(), self.visitArgs(ctx.args()))
+        return ir.Call(self.pos(ctx), ir.Type('any'), ctx.ID().getText(), self.visitArgs(ctx.args()))
     
     def visitParen(self, ctx):
         expr = self.visit(ctx.expr())
@@ -161,19 +164,19 @@ class IRBuilder(GemVisitor):
     
     def visitAttr(self, ctx):
         return ir.Attribute(
-            self.pos(ctx), ir.Type.new('any'), self.visit(ctx.expr()), ctx.ID().getText(),
+            self.pos(ctx), ir.Type('any'), self.visit(ctx.expr()), ctx.ID().getText(),
             self.visitArgs(ctx.args()) if ctx.LPAREN() is not None else None
         )
     
     def visitTernary(self, ctx):
         return ir.Ternary(
-            self.pos(ctx), ir.Type.new('any'), self.visit(ctx.expr(1)),
+            self.pos(ctx), ir.Type('any'), self.visit(ctx.expr(1)),
             self.visit(ctx.expr(0)), self.visit(ctx.expr(2))
         )
     
     def visitNew(self, ctx):
         return ir.New(
-            self.pos(ctx), ir.Type.new('any'), self.visitType(ctx.type_()),
+            self.pos(ctx), ir.Type('any'), self.visitType(ctx.type_()),
             self.visitArgs(ctx.args())
         )
     
@@ -182,10 +185,10 @@ class IRBuilder(GemVisitor):
         op = ctx.op.text
         if isinstance(ctx.expr(), list):
             left, right = self.visit(ctx.expr(0)), self.visit(ctx.expr(1))
-            return ir.Operation(pos, ir.Type.new('any'), op, left, right)
+            return ir.Operation(pos, ir.Type('any'), op, left, right)
         else:
             left = self.visit(ctx.expr())
-            return ir.UnaryOperation(pos, ir.Type.new('any'), op, left)
+            return ir.UnaryOperation(pos, ir.Type('any'), op, left)
     
     def visitAddition(self, ctx):
         return self.visitOperation(ctx)

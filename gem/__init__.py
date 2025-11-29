@@ -22,9 +22,16 @@ def compile_to_str(file: ir.File):
     program = parse(file)
     info(f'Parsed Program:\n{program}')
     
+    ir_file = file.path.with_suffix('.gir')
+    if file.options.debug:
+        ir_file.write_text(str(program))
+    
     analysed_program = AnalyserPass.run(file, program)
     info(f'Analysed Program:\n{analysed_program}')
     file.program = analysed_program
+    
+    if file.options.debug:
+        ir_file.write_text(str(analysed_program))
     
     return CodeGenerationPass.run(file, analysed_program)
 

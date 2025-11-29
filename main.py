@@ -9,7 +9,7 @@ from gem import ArgParser, VERSION
 
 def main():
     info(f'Bundle v{VERSION}')
-    info('Backend: llvmlite/LLVM')
+    info('Backend: LLVM')
     info(f'Target: {llvm.get_default_triple()}')
     
     llvm.initialize()

@@ -11,7 +11,7 @@ params: param (COMMA param)*;
 genericParam: ID;
 genericParams: LT genericParam (COMMA genericParam)* GT;
 
-type: ID;
+type: ID | type AMPERSAND;
 
 stmt
     : varAssign | funcAssign
@@ -116,6 +116,7 @@ RPAREN: ')';
 LBRACE: '{';
 RBRACE: '}';
 RETURNS: '->';
+AMPERSAND: '&';
 
 COMMENT: '//' .*? '\n' -> skip;
 MULTILINE_COMMENT: '/*' .*? '*/' -> skip;

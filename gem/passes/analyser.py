@@ -97,6 +97,9 @@ class AnalyserPass(CompilerPass):
         
         return t
     
+    def visit_ReferenceType(self, node: ir.ReferenceType):
+        return ir.ReferenceType(self.visit(node.type))
+    
     def visit_Arg(self, node: ir.Arg):
         value = self.visit(node.value)
         return ir.Arg(node.pos, value.type, value)
@@ -248,6 +251,15 @@ class AnalyserPass(CompilerPass):
         
         return ir.Ternary(node.pos, true.type, cond, true, false)
     
+    def fix_arg(self, arg: ir.Arg, param: ir.Param):
+        if isinstance(param.type, ir.ReferenceType) and not isinstance(arg.type, ir.ReferenceType):
+            if not isinstance(arg.value, ir.Id):
+                arg.pos.comptime_error(self.file, 'attempt to get a reference to non-id')
+            
+            return self.visit(ir.Ref(arg.pos, arg.type, arg.value.name)).to_arg()
+        
+        return arg
+    
     def visit_Call(self, node: ir.Call):
         symbol = self.scope.symbol_table.get(node.callee)
         if symbol is None:
@@ -260,10 +272,11 @@ class AnalyserPass(CompilerPass):
             if not overload.match_params(args):
                 continue
             
-            callsite = overload.call(node.pos, args)
+            new_args = [self.fix_arg(arg, param) for arg, param in zip(args, overload.params)]
+            callsite = overload.call(node.pos, new_args)
             if overload.is_generic:
                 overload = self.visit_Function(overload, callsite)
-                callsite = overload.call(node.pos, args)
+                callsite = overload.call(node.pos, new_args)
             
             return callsite
         
@@ -283,8 +296,12 @@ class AnalyserPass(CompilerPass):
     
     def visit_Attribute(self, node: ir.Attribute):
         value = self.visit(node.value)
-        callee = f'{value.type}.{node.attr}'
-        args = [ir.Arg(node.pos, value.type, value)] + (node.args if node.args is not None else [])
+        value_type = value.type
+        if isinstance(value_type, ir.ReferenceType):
+            value_type = value_type.type
+        
+        callee = f'{value_type}.{node.attr}'
+        args = [value.to_arg()] + (node.args if node.args is not None else [])
         symbol = self.scope.symbol_table.get(callee)
         if symbol is None:
             node.pos.comptime_error(self.file, f'no attribute \'{node.attr}\' for type \'{value.type}\'')
@@ -305,3 +322,10 @@ class AnalyserPass(CompilerPass):
         return self.visit(ir.Attribute(
             node.pos, new_type, ir.Id(node.new_type.pos, new_type, str(new_type)), 'new', node.args
         ))
+    
+    def visit_Ref(self, node: ir.Ref):
+        symbol = self.scope.symbol_table.get(node.name)
+        if symbol is None:
+            node.pos.comptime_error(self.file, f'reference to {node.name} no longer exists')
+        
+        return ir.Ref(node.pos, self.visit(ir.ReferenceType(symbol.type)), node.name)

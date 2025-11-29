@@ -1,12 +1,15 @@
 main.py (line 11) [INFO] - Bundle v0.0.1
-main.py (line 12) [INFO] - Backend: llvmlite/LLVM
+main.py (line 12) [INFO] - Backend: LLVM
 main.py (line 13) [INFO] - Target: x86_64-pc-windows-msvc
 __init__.py (line 23) [INFO] - Parsed Program:
 use "core"
-fn main() -> int {
-any s = "Hey"
-print_string(s)
+fn string.destroy(string& s) -> nil {
 __free(s.ptr)
+}
+fn main() -> int {
+any s = "Hello world"
+print_string(s)
+s.destroy()
 return 0
 }
 analyser.py (line 77) [INFO] - Declared intrinsic panic
@@ -33,38 +36,43 @@ analyser.py (line 77) [INFO] - Declared intrinsic __print_pointer
 analyser.py (line 77) [INFO] - Declared intrinsic int.+.int
 analyser.py (line 77) [INFO] - Declared intrinsic float.+.float
 analyser.py (line 77) [INFO] - Declared intrinsic string.ptr
-analyser.py (line 151) [INFO] - Entering function string.new's body
-analyser.py (line 259) [INFO] - Checking if int.+.int's arguments match
-analyser.py (line 259) [INFO] - Checking if __alloc's arguments match
-analyser.py (line 259) [INFO] - Checking if __memcpy's arguments match
-analyser.py (line 259) [INFO] - Checking if __create_string's arguments match
-analyser.py (line 151) [INFO] - Entering function int.to_string's body
-analyser.py (line 259) [INFO] - Checking if __buffer's arguments match
-analyser.py (line 259) [INFO] - Checking if __format_int's arguments match
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 151) [INFO] - Entering function float.to_string's body
-analyser.py (line 259) [INFO] - Checking if __buffer's arguments match
-analyser.py (line 259) [INFO] - Checking if __format_float's arguments match
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 151) [INFO] - Entering function string.to_string's body
-analyser.py (line 151) [INFO] - Entering function bool.to_string's body
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 151) [INFO] - Entering function print_string's body
-analyser.py (line 259) [INFO] - Checking if string.ptr's arguments match
-analyser.py (line 259) [INFO] - Checking if __print_pointer's arguments match
-analyser.py (line 201) [INFO] - Imported gem library core
-analyser.py (line 151) [INFO] - Entering function main's body
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 259) [INFO] - Checking if print_string's arguments match
-analyser.py (line 259) [INFO] - Checking if string.ptr's arguments match
-analyser.py (line 259) [INFO] - Checking if __free's arguments match
-__init__.py (line 26) [INFO] - Analysed Program:
+analyser.py (line 154) [INFO] - Entering function string.new's body
+analyser.py (line 271) [INFO] - Checking if int.+.int's arguments match
+analyser.py (line 271) [INFO] - Checking if __alloc's arguments match
+analyser.py (line 271) [INFO] - Checking if __memcpy's arguments match
+analyser.py (line 271) [INFO] - Checking if __create_string's arguments match
+analyser.py (line 154) [INFO] - Entering function int.to_string's body
+analyser.py (line 271) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 271) [INFO] - Checking if __format_int's arguments match
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 154) [INFO] - Entering function float.to_string's body
+analyser.py (line 271) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 271) [INFO] - Checking if __format_float's arguments match
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 154) [INFO] - Entering function string.to_string's body
+analyser.py (line 154) [INFO] - Entering function bool.to_string's body
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 154) [INFO] - Entering function print_string's body
+analyser.py (line 271) [INFO] - Checking if string.ptr's arguments match
+analyser.py (line 271) [INFO] - Checking if __print_pointer's arguments match
+analyser.py (line 204) [INFO] - Imported gem library core
+analyser.py (line 154) [INFO] - Entering function string.destroy's body
+analyser.py (line 271) [INFO] - Checking if string.ptr's arguments match
+analyser.py (line 271) [INFO] - Checking if __free's arguments match
+analyser.py (line 154) [INFO] - Entering function main's body
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 271) [INFO] - Checking if print_string's arguments match
+analyser.py (line 271) [INFO] - Checking if string.destroy's arguments match
+__init__.py (line 30) [INFO] - Analysed Program:
 use "core"
-fn main() -> int {
-string s = string.new(str_lit("Hey"), 3)
-print_string(s)
+fn string.destroy(string& s) -> nil {
 __free(string.ptr(s))
+}
+fn main() -> int {
+string s = string.new(str_lit("Hello world"), 11)
+print_string(s)
+string.destroy(&s)
 return 0
 }
 c_registry.py (line 73) [INFO] - Registered C function 'malloc'
@@ -113,27 +121,27 @@ analyser.py (line 77) [INFO] - Declared intrinsic __print_pointer
 analyser.py (line 77) [INFO] - Declared intrinsic int.+.int
 analyser.py (line 77) [INFO] - Declared intrinsic float.+.float
 analyser.py (line 77) [INFO] - Declared intrinsic string.ptr
-analyser.py (line 151) [INFO] - Entering function string.new's body
-analyser.py (line 259) [INFO] - Checking if int.+.int's arguments match
-analyser.py (line 259) [INFO] - Checking if __alloc's arguments match
-analyser.py (line 259) [INFO] - Checking if __memcpy's arguments match
-analyser.py (line 259) [INFO] - Checking if __create_string's arguments match
-analyser.py (line 151) [INFO] - Entering function int.to_string's body
-analyser.py (line 259) [INFO] - Checking if __buffer's arguments match
-analyser.py (line 259) [INFO] - Checking if __format_int's arguments match
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 151) [INFO] - Entering function float.to_string's body
-analyser.py (line 259) [INFO] - Checking if __buffer's arguments match
-analyser.py (line 259) [INFO] - Checking if __format_float's arguments match
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 151) [INFO] - Entering function string.to_string's body
-analyser.py (line 151) [INFO] - Entering function bool.to_string's body
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 259) [INFO] - Checking if string.new's arguments match
-analyser.py (line 151) [INFO] - Entering function print_string's body
-analyser.py (line 259) [INFO] - Checking if string.ptr's arguments match
-analyser.py (line 259) [INFO] - Checking if __print_pointer's arguments match
-__init__.py (line 26) [INFO] - Analysed Program:
+analyser.py (line 154) [INFO] - Entering function string.new's body
+analyser.py (line 271) [INFO] - Checking if int.+.int's arguments match
+analyser.py (line 271) [INFO] - Checking if __alloc's arguments match
+analyser.py (line 271) [INFO] - Checking if __memcpy's arguments match
+analyser.py (line 271) [INFO] - Checking if __create_string's arguments match
+analyser.py (line 154) [INFO] - Entering function int.to_string's body
+analyser.py (line 271) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 271) [INFO] - Checking if __format_int's arguments match
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 154) [INFO] - Entering function float.to_string's body
+analyser.py (line 271) [INFO] - Checking if __buffer's arguments match
+analyser.py (line 271) [INFO] - Checking if __format_float's arguments match
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 154) [INFO] - Entering function string.to_string's body
+analyser.py (line 154) [INFO] - Entering function bool.to_string's body
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 271) [INFO] - Checking if string.new's arguments match
+analyser.py (line 154) [INFO] - Entering function print_string's body
+analyser.py (line 271) [INFO] - Checking if string.ptr's arguments match
+analyser.py (line 271) [INFO] - Checking if __print_pointer's arguments match
+__init__.py (line 30) [INFO] - Analysed Program:
 use "core"
 static fn string.new(pointer ptr, int length) -> string {
 pointer ptr_copy = __alloc(int.+.int(length, 1))
@@ -167,12 +175,12 @@ c_registry.py (line 73) [INFO] - Registered C function 'memcpy'
 c_registry.py (line 73) [INFO] - Registered C function 'puts'
 c_registry.py (line 73) [INFO] - Registered C function 'exit'
 c_registry.py (line 73) [INFO] - Registered C function 'snprintf'
-__init__.py (line 35) [INFO] - Wrote LLVM IR to C:\Programming\Python\Gem\gem\stdlib\core\core.ll
-__init__.py (line 51) [INFO] - Executing compilation command: clang -c -o C:\Programming\Python\Gem\gem\stdlib\core\core.o C:\Programming\Python\Gem\gem\stdlib\core\core.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra -g
-__init__.py (line 53) [INFO] - Wrote object file to C:\Programming\Python\Gem\gem\stdlib\core\core.o
-code_generation.py (line 252) [INFO] - Imported gem library core
-__init__.py (line 35) [INFO] - Wrote LLVM IR to examples\test.ll
-__init__.py (line 51) [INFO] - Executing compilation command: clang -c -o examples\test.o examples\test.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra -g
-__init__.py (line 53) [INFO] - Wrote object file to examples\test.o
-__init__.py (line 65) [INFO] - Executing compilation command: clang -o examples\test.exe examples\test.o C:\Programming\Python\Gem\gem\stdlib\core\core.o
-__init__.py (line 67) [INFO] - Wrote executable to examples\test.exe
+__init__.py (line 42) [INFO] - Wrote LLVM IR to C:\Programming\Python\Gem\gem\stdlib\core\core.ll
+__init__.py (line 58) [INFO] - Executing compilation command: clang -c -o C:\Programming\Python\Gem\gem\stdlib\core\core.o C:\Programming\Python\Gem\gem\stdlib\core\core.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra -g
+__init__.py (line 60) [INFO] - Wrote object file to C:\Programming\Python\Gem\gem\stdlib\core\core.o
+code_generation.py (line 256) [INFO] - Imported gem library core
+__init__.py (line 42) [INFO] - Wrote LLVM IR to examples\test.ll
+__init__.py (line 58) [INFO] - Executing compilation command: clang -c -o examples\test.o examples\test.ll -Wno-override-module -Wall -Werror -Wpedantic -Wextra -g
+__init__.py (line 60) [INFO] - Wrote object file to examples\test.o
+__init__.py (line 72) [INFO] - Executing compilation command: clang -o examples\test.exe examples\test.o C:\Programming\Python\Gem\gem\stdlib\core\core.o
+__init__.py (line 74) [INFO] - Wrote executable to examples\test.exe

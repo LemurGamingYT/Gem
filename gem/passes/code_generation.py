@@ -9,7 +9,7 @@ from gem.c_registry import CRegistry
 from gem.passes import CompilerPass
 from gem import ir
 from gem.codegen_utils import (
-    NULL, create_static_buffer, create_struct_value, define_identified_type, create_string_constant, llint, get_struct_field
+    NULL, create_static_buffer, create_struct_value, define_identified_type, create_string_constant, get_allocated_struct_field_value, llint, get_struct_field
 )
 
 
@@ -69,6 +69,10 @@ class CodeGenerationPass(CompilerPass):
                     return self.codegen_types[node.type]
                 
                 node.pos.comptime_error(self.file, f'unknown type \'{node.type}\'')
+    
+    def visit_ReferenceType(self, node: ir.ReferenceType):
+        typ = self.visit(node.type)
+        return lir.PointerType(typ)
     
     def visit_Arg(self, node: ir.Arg):
         return self.visit(node.value)
@@ -369,6 +373,9 @@ class CodeGenerationPass(CompilerPass):
             case 'string.ptr':
                 self.builder.comment('string.ptr intrinsic')
                 
+                if isinstance(args[0].type, lir.PointerType):
+                    return get_allocated_struct_field_value(self.builder, args[0], 0, 'string.ptr')
+                
                 return get_struct_field(self.builder, args[0], 0, 'string.ptr')
     
     def visit_Call(self, node: ir.Call):
@@ -385,10 +392,8 @@ class CodeGenerationPass(CompilerPass):
         
         return self.builder.call(func, args, node.callee)
     
-    def visit_Attribute(self, node: ir.Attribute):
-        value = self.visit(node.value)
-        match node.value.type.type, node.attr:
-            case 'string', 'ptr':
-                return get_struct_field(self.builder, cast(lir.Value, value), 0, 'string.ptr')
-            case _:
-                raise NotImplementedError(f'Unsupported attribute access: {value.type.type}.{node.attr}')
+    def visit_Ref(self, node: ir.Ref):
+        symbol = self.scope.symbol_table.get(node.name)
+        assert symbol is not None
+        
+        return symbol.value

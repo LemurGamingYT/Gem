@@ -4,6 +4,7 @@ __pycache__/
 
 # compiler generated files
 debug.log
+*.gir
 
 # codegen files
 *.o

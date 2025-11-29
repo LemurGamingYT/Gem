@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
-from sys import exit as sys_exit
 from typing import Optional, Any
+from sys import exit as sys_exit
 from logging import error, info
 from pathlib import Path
 from copy import copy
@@ -72,8 +72,8 @@ class TypeMap:
     def get(self, name: str):
         return self.types[name]
                  
-    def add(self, display: str, typ: str | None = None):
-        self.types[display] = Type(Position.zero(), typ or display, display)
+    def add(self, type: str):
+        self.types[type] = Type(type)
     
     def add_type(self, display: str, typ: 'Type'):
         self.types[display] = typ
@@ -166,15 +166,18 @@ class Node(ABC):
 
 @dataclass(unsafe_hash=True)
 class Type(Node):
+    pos: Position = field(default_factory=Position.zero, init=False)
     type: str #type: ignore
-    display: str
-    
-    @staticmethod
-    def new(type: str, display: Optional[str] = None) -> 'Type':
-        return Type(Position.zero(), type, display or type)
     
     def __str__(self) -> str:
-        return self.display
+        return self.type
+
+@dataclass(unsafe_hash=True)
+class ReferenceType(Type):
+    type: Type # type: ignore
+    
+    def __str__(self):
+        return f'{self.type}&'
 
 @dataclass
 class Program(Node):
@@ -254,6 +257,12 @@ class Function(Node):
         for arg, param in zip(args, self.params):
             param_type = param.type
             arg_type = arg.type
+            if isinstance(param_type, ReferenceType):
+                param_type = param_type.type
+            
+            if isinstance(arg_type, ReferenceType):
+                arg_type = arg_type.type
+            
             if str(arg_type) != str(param_type) and param_type.type != 'any' and param_type.type not in self.generic_params:
                 info(f'Type mismatch: arg type {arg_type} does not match param type {param_type}')
                 return False
@@ -473,3 +482,10 @@ class Attribute(Node):
         
         args_str = ', '.join(str(arg) for arg in self.args)
         return f'{self.value}.{self.attr}({args_str})'
+
+@dataclass
+class Ref(Node):
+    name: str
+    
+    def __str__(self):
+        return f'&{self.name}'
