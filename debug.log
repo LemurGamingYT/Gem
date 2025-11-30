@@ -3,9 +3,6 @@ main.py (line 12) [INFO] - Backend: LLVM
 main.py (line 13) [INFO] - Target: x86_64-pc-windows-msvc
 __init__.py (line 24) [INFO] - Parsed Program:
 use "core"
-fn string.destroy(string& s) -> nil {
-__free(s.ptr)
-}
 fn main() -> int {
 any s = "Hello world"
 print_string(s)
@@ -55,18 +52,15 @@ analyser.py (line 271) [INFO] - Checking if string.new's arguments match
 analyser.py (line 154) [INFO] - Entering function print_string's body
 analyser.py (line 271) [INFO] - Checking if string.ptr's arguments match
 analyser.py (line 271) [INFO] - Checking if __print_pointer's arguments match
-analyser.py (line 204) [INFO] - Imported gem library core
 analyser.py (line 154) [INFO] - Entering function string.destroy's body
 analyser.py (line 271) [INFO] - Checking if string.ptr's arguments match
 analyser.py (line 271) [INFO] - Checking if __free's arguments match
+analyser.py (line 204) [INFO] - Imported gem library core
 analyser.py (line 154) [INFO] - Entering function main's body
 analyser.py (line 271) [INFO] - Checking if string.new's arguments match
 analyser.py (line 271) [INFO] - Checking if print_string's arguments match
 __init__.py (line 31) [INFO] - Analysed Program:
 use "core"
-fn string.destroy(string& s) -> nil {
-__free(string.ptr(s))
-}
 fn main() -> int {
 string s = string.new(str_lit("Hello world"), 11)
 print_string(s)
@@ -74,7 +68,6 @@ return 0
 }
 memory_manager.py (line 106) [INFO] - Running memory manager
 __init__.py (line 33) [WARNING] - No method visit_Use, returning unchanged node
-__init__.py (line 33) [WARNING] - No method visit_Attribute, returning unchanged node
 __init__.py (line 33) [WARNING] - No method visit_String, returning unchanged node
 memory_manager.py (line 58) [INFO] - Creating owned object: _2 of type string
 memory_manager.py (line 149) [INFO] - Transfering ownership of _2 to s
@@ -82,10 +75,6 @@ __init__.py (line 33) [WARNING] - No method visit_Id, returning unchanged node
 __init__.py (line 33) [WARNING] - No method visit_Int, returning unchanged node
 __init__.py (line 38) [INFO] - Memory Safe Program:
 use "core"
-fn string.destroy(string& s) -> nil {
-__free(s.ptr)
-// end of scope
-}
 fn main() -> int {
 string _2 = "Hello world"
 string s = _2
@@ -128,6 +117,9 @@ return "true" if b else "false"
 fn print_string(string value) -> nil {
 __print_pointer(value.ptr)
 }
+fn string.destroy(string& s) -> nil {
+__free(s.ptr)
+}
 analyser.py (line 77) [INFO] - Declared intrinsic panic
 analyser.py (line 77) [INFO] - Declared intrinsic __buffer
 analyser.py (line 77) [INFO] - Declared intrinsic __create_string
@@ -160,6 +152,9 @@ analyser.py (line 271) [INFO] - Checking if string.new's arguments match
 analyser.py (line 154) [INFO] - Entering function print_string's body
 analyser.py (line 271) [INFO] - Checking if string.ptr's arguments match
 analyser.py (line 271) [INFO] - Checking if __print_pointer's arguments match
+analyser.py (line 154) [INFO] - Entering function string.destroy's body
+analyser.py (line 271) [INFO] - Checking if string.ptr's arguments match
+analyser.py (line 271) [INFO] - Checking if __free's arguments match
 __init__.py (line 31) [INFO] - Analysed Program:
 use "core"
 static fn string.new(pointer ptr, int length) -> string {
@@ -186,6 +181,9 @@ return string.new(str_lit("true"), 4) if b else string.new(str_lit("false"), 5)
 fn print_string(string value) -> nil {
 __print_pointer(string.ptr(value))
 }
+fn string.destroy(string& s) -> nil {
+__free(string.ptr(s))
+}
 memory_manager.py (line 106) [INFO] - Running memory manager
 __init__.py (line 33) [WARNING] - No method visit_Use, returning unchanged node
 __init__.py (line 33) [WARNING] - No method visit_Operation, returning unchanged node
@@ -207,6 +205,7 @@ __init__.py (line 33) [WARNING] - No method visit_Id, returning unchanged node
 __init__.py (line 33) [WARNING] - No method visit_New, returning unchanged node
 __init__.py (line 33) [WARNING] - No method visit_Id, returning unchanged node
 __init__.py (line 33) [WARNING] - No method visit_Ternary, returning unchanged node
+__init__.py (line 33) [WARNING] - No method visit_Attribute, returning unchanged node
 __init__.py (line 33) [WARNING] - No method visit_Attribute, returning unchanged node
 __init__.py (line 38) [INFO] - Memory Safe Program:
 use "core"
@@ -238,6 +237,10 @@ return "true" if b else "false"
 }
 fn print_string(string value) -> nil {
 __print_pointer(value.ptr)
+// end of scope
+}
+fn string.destroy(string& s) -> nil {
+__free(s.ptr)
 // end of scope
 }
 c_registry.py (line 73) [INFO] - Registered C function 'malloc'

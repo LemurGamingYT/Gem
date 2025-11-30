@@ -1,7 +1,3 @@
-fn string.destroy(string& s) {
-    __free(s.ptr)
-}
-
 fn main() -> int {
     s = "Hello world"
     print_string(s)
