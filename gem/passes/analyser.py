@@ -88,7 +88,7 @@ class AnalyserPass(CompilerPass):
         for stmt in node.nodes:
             nodes.append(self.visit(stmt))
         
-        return ir.Program(node.pos, node.type, nodes)
+        return ir.Program(node.pos, nodes)
     
     def visit_Type(self, node: ir.Type):
         t = self.scope.type_map.get(node.type)

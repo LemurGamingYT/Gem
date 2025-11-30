@@ -5,7 +5,5 @@ fn string.destroy(string& s) {
 fn main() -> int {
     s = "Hello world"
     print_string(s)
-    
-    s.destroy()
     return 0
 }

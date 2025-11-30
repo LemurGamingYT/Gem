@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Any
 from sys import exit as sys_exit
 from logging import error, info
+from functools import partial
 from pathlib import Path
 from copy import copy
 
@@ -10,6 +11,9 @@ from colorama import Fore, Style
 
 
 STDLIB_PATH = Path(__file__).parent / 'stdlib'
+
+def no_type():
+    return Type('any')
 
 @dataclass(unsafe_hash=True)
 class Position:
@@ -101,6 +105,7 @@ class Scope:
     symbol_table: SymbolTable = field(default_factory=SymbolTable)
     type_map: TypeMap = field(default_factory=TypeMap)
     dependencies: list[Path] = field(default_factory=list)
+    body_nodes: list['Node'] = field(default_factory=list)
     
     @property
     def unique_name(self):
@@ -181,6 +186,7 @@ class ReferenceType(Type):
 
 @dataclass
 class Program(Node):
+    type: Type = field(default_factory=no_type, init=False)
     nodes: list[Node] = field(default_factory=list)
     
     def __str__(self) -> str:
@@ -315,6 +321,7 @@ class Assignment(Node):
 
 @dataclass
 class Elseif(Node):
+    type: Type = field(default_factory=no_type, init=False)
     cond: Node
     body: Body
     
@@ -325,6 +332,7 @@ class Elseif(Node):
 
 @dataclass
 class If(Node):
+    type: Type = field(default_factory=no_type, init=False)
     cond: Node
     body: Body
     else_body: Body | None = field(default=None)
@@ -338,6 +346,7 @@ class If(Node):
 
 @dataclass
 class While(Node):
+    type: Type = field(default_factory=no_type, init=False)
     cond: Node
     body: Body
     
@@ -348,16 +357,21 @@ class While(Node):
 
 @dataclass
 class Break(Node):
+    type: Type = field(default_factory=no_type, init=False)
+    
     def __str__(self) -> str:
         return 'break'
 
 @dataclass
 class Continue(Node):
+    type: Type = field(default_factory=no_type, init=False)
+    
     def __str__(self) -> str:
         return 'continue'
 
 @dataclass
 class Use(Node):
+    type: Type = field(default_factory=no_type, init=False)
     path: str
     
     def __str__(self) -> str:
@@ -408,6 +422,9 @@ class Bool(Node):
 @dataclass
 class Id(Node):
     name: str
+    
+    def to_ref(self):
+        return Ref(self.pos, ReferenceType(self.type), self.name)
     
     def __str__(self) -> str:
         return self.name
@@ -489,3 +506,11 @@ class Ref(Node):
     
     def __str__(self):
         return f'&{self.name}'
+
+@dataclass
+class Comment(Node):
+    type: Type = field(default_factory=no_type, init=False)
+    text: str
+    
+    def __str__(self):
+        return f'// {self.text}'

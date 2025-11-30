@@ -4,6 +4,7 @@ from logging import info
 from pathlib import Path
 
 from gem.passes.code_generation import CodeGenerationPass
+from gem.passes.memory_manager import MemoryManager
 from gem.passes.analyser import AnalyserPass
 from gem.ir_builder import IRBuilder
 from gem import ir
@@ -14,7 +15,7 @@ VERSION = '0.0.1'
 def parse(file: ir.File):
     ir_builder = IRBuilder(file)
     program = ir_builder.build()
-    program.nodes.insert(0, ir.Use(program.pos, program.type, 'core'))
+    program.nodes.insert(0, ir.Use(program.pos, 'core'))
     file.program = program
     return program
 
@@ -32,6 +33,13 @@ def compile_to_str(file: ir.File):
     
     if file.options.debug:
         ir_file.write_text(str(analysed_program))
+    
+    memory_safe_program = MemoryManager.run(file, program)
+    info(f'Memory Safe Program:\n{memory_safe_program}')
+    file.program = memory_safe_program
+    
+    if file.options.debug:
+        ir_file.write_text(str(memory_safe_program))
     
     return CodeGenerationPass.run(file, analysed_program)
 

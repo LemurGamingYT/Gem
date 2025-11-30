@@ -31,7 +31,7 @@ class IRBuilder(GemVisitor):
         return self.visitProgram(parser.program())
     
     def visitProgram(self, ctx):
-        return ir.Program(self.pos(ctx), ir.Type('any'), [self.visit(stmt) for stmt in ctx.stmt()])
+        return ir.Program(self.pos(ctx), [self.visit(stmt) for stmt in ctx.stmt()])
     
     def visitType(self, ctx):
         if ctx.AMPERSAND() is not None:
@@ -51,10 +51,10 @@ class IRBuilder(GemVisitor):
         return ir.Return(self.pos(ctx), expr.type, expr)
     
     def visitBreak(self, ctx):
-        return ir.Break(self.pos(ctx), ir.Type('any'))
+        return ir.Break(self.pos(ctx))
     
     def visitContinue(self, ctx):
-        return ir.Continue(self.pos(ctx), ir.Type('any'))
+        return ir.Continue(self.pos(ctx))
     
     def visitBody(self, ctx):
         return ir.Body(
@@ -114,7 +114,7 @@ class IRBuilder(GemVisitor):
     
     def visitIfStmt(self, ctx):
         return ir.If(
-            self.pos(ctx), ir.Type('any'), self.visit(ctx.expr()),
+            self.pos(ctx), self.visit(ctx.expr()),
             self.visitBody(ctx.body()), self.visitElseStmt(ctx.elseStmt()),
             [self.visitElseifStmt(elseif) for elseif in ctx.elseifStmt()]
         )
@@ -123,19 +123,13 @@ class IRBuilder(GemVisitor):
         return self.visitBody(ctx.body()) if ctx is not None else None
     
     def visitElseifStmt(self, ctx):
-        return ir.Elseif(
-            self.pos(ctx), ir.Type('any'),
-            self.visit(ctx.expr()), self.visitBody(ctx.body())
-        )
+        return ir.Elseif(self.pos(ctx), self.visit(ctx.expr()), self.visitBody(ctx.body()))
     
     def visitWhileStmt(self, ctx):
-        return ir.While(
-            self.pos(ctx), ir.Type('any'), self.visit(ctx.expr()),
-            self.visitBody(ctx.body())
-        )
+        return ir.While(self.pos(ctx), self.visit(ctx.expr()), self.visitBody(ctx.body()))
     
     def visitUseStmt(self, ctx):
-        return ir.Use(self.pos(ctx), ir.Type('any'), ctx.STRING().getText()[1:-1])
+        return ir.Use(self.pos(ctx), ctx.STRING().getText()[1:-1])
     
     def visitInt(self, ctx):
         return ir.Int(self.pos(ctx), ir.Type('int'), int(ctx.getText()))
