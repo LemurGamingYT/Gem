@@ -274,12 +274,11 @@ class CodeGenerationPass(CompilerPass):
                 
                 for symbol in file.scope.symbol_table.symbols.values():
                     func = symbol.value
-                    if isinstance(func, lir.Function):
+                    if isinstance(func, lir.Function) and func.linkage != 'external':
                         new_func = lir.Function(self.module, func.function_type, func.name)
                         new_func.linkage = 'external'
                 
                 self.file.codegen_data.object_files.append(obj_file)
-                self.scope.merge(file.scope)
                 
                 info(f'Imported gem library {node.path}')
         
