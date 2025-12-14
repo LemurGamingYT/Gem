@@ -8,7 +8,7 @@ from gem import ArgParser, VERSION
 
 
 def main():
-    info(f'Bundle v{VERSION}')
+    info(f'Gem v{VERSION}')
     info('Backend: LLVM')
     info(f'Target: {llvm.get_default_triple()}')
     
