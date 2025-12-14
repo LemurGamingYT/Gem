@@ -32,13 +32,6 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
         ])
         
-        self.declare_intrinsic('__memcpy', self.scope.type_map.get('pointer'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'dest'),
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'src'),
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'size'),
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('bool'), 'is_volatile')
-        ])
-        
         self.declare_intrinsic('__format_int', self.scope.type_map.get('int'), [
             ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'buf'),
             ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'length'),
@@ -49,10 +42,6 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'buf'),
             ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'length'),
             ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'f')
-        ])
-        
-        self.declare_intrinsic('__print_pointer', self.scope.type_map.get('nil'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
         ])
         
         self.declare_intrinsic('int.+.int', self.scope.type_map.get('int'), [

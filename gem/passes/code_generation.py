@@ -360,11 +360,6 @@ class CodeGenerationPass(CompilerPass):
                 
                 free = self.c_registry.get('free')
                 return self.builder.call(free, args)
-            case '__memcpy':
-                self.builder.comment('__memcpy intrinsic')
-                
-                memcpy = self.c_registry.get('memcpy')
-                return self.builder.call(memcpy, args, '__memcpy')
             case '__format_int':
                 self.builder.comment('__format_int intrinsic')
                 
@@ -385,11 +380,6 @@ class CodeGenerationPass(CompilerPass):
                     fmt = create_string_constant(self.module, '%f', 'float_fmt', self.builder)
                 
                 return self.builder.call(snprintf, [args[0], args[1], fmt, args[2]], '__format_float')
-            case '__print_pointer':
-                self.builder.comment('__print_pointer intrinsic')
-                
-                puts = self.c_registry.get('puts')
-                return self.builder.call(puts, args, '__print_pointer')
             case 'int.+.int':
                 self.builder.comment('int.+.int intrinsic')
                 
