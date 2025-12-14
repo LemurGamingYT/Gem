@@ -1,4 +1,4 @@
-from typing import Any, Optional, Callable, Iterable
+from typing import Any, Optional, Callable, Iterable, cast
 
 from llvmlite import ir, binding as llvm
 
@@ -47,7 +47,7 @@ def index_of_type(type: ir.LiteralStructType | ir.IdentifiedStructType, elem_typ
 
     return ref_index
 
-def cast_value(builder: ir.IRBuilder, value: ir.Value, type: ir.Type, name: str = '') -> ir.Value:
+def cast_value(builder: ir.IRBuilder, value: Any, type: ir.Type, name: str = '') -> Any:
     """Converts the value to the type in any possible way"""
     value_type = value.type
     if isinstance(type, ir.IntType) and isinstance(value_type, ir.IntType):
@@ -86,9 +86,7 @@ def get_or_add_global(module: ir.Module, name: str, global_value: Any, **kwargs)
     
     return global_value
 
-def define_identified_type(
-    name: str, types: Iterable[ir.Type], context: ir.Context = ir.global_context
-):
+def define_identified_type(name: str, types: Iterable[ir.Type], context: ir.Context = ir.global_context):
     typ = context.get_identified_type(name)
     if typ.is_opaque:
         typ.set_body(*types)
@@ -99,7 +97,7 @@ def get_ptr(instr: ir.LoadInstr):
     """Get pointer from a load instruction"""
     return instr.operands[0]
 
-def allocate(builder: ir.IRBuilder, value: ir.Value, name: str = ''):
+def allocate(builder: ir.IRBuilder, value: Any, name: str = ''):
     """Allocate a value on the stack as a pointer"""
     
     ptr = builder.alloca(value.type, name=name)
@@ -115,10 +113,7 @@ def min_value(bits: int):
     return -2 ** (bits - 1)
 
 
-def create_struct_value(
-    builder: ir.IRBuilder, struct_type: ir.Type, field_values: list[ir.Value],
-    name: str = ''
-):
+def create_struct_value(builder: ir.IRBuilder, struct_type: ir.Type, field_values: list[ir.Value], name: str = ''):
     """Create a struct value from field values"""
     struct_val = ir.Constant(struct_type, ir.Undefined)
     for i, field_val in enumerate(field_values):
@@ -128,56 +123,42 @@ def create_struct_value(
     
     return struct_val
 
-def get_allocated_struct_field(builder: ir.IRBuilder, struct: ir.Value, field_index: int, name: str = ''):
+def get_allocated_struct_field(builder: ir.IRBuilder, struct: Any, field_index: int, name: str = ''):
     """Get pointer to a struct field (struct must be allocated)"""
     return builder.gep(struct, [zero(32), llint(field_index)], True, name)
 
-def get_allocated_struct_field_value(
-    builder: ir.IRBuilder, struct: ir.Value, field_index: int, name: str = ''
-):
+def get_allocated_struct_field_value(builder: ir.IRBuilder, struct: Any, field_index: int, name: str = ''):
     """Get the value from a struct pointer's field (struct must be allocated)"""
     ptr = get_allocated_struct_field(builder, struct, field_index, f'{name}_ptr')
     return builder.load(ptr, name)
 
-def get_struct_field(builder: ir.IRBuilder, struct: ir.Value, field_index: int, name: str = ''):
+def get_struct_field(builder: ir.IRBuilder, struct: Any, field_index: int, name: str = ''):
     """Extract a field value from a struct value"""
     return builder.extract_value(struct, field_index, name)
 
-def set_allocated_struct_field(
-    builder: ir.IRBuilder, struct: ir.Value, field_index: int, value: ir.Value, name: str = ''
-):
+def set_allocated_struct_field(builder: ir.IRBuilder, struct: Any, field_index: int, value: Any, name: str = ''):
     """Set a field in a struct (struct must be allocated)"""
     ptr = get_allocated_struct_field(builder, struct, field_index, name)
     builder.store(value, ptr)
 
 
-def create_string_constant(
-    module: ir.Module, text: str, name: str = '', builder: Optional[ir.IRBuilder] = None
-):
+def create_string_constant(module: ir.Module, text: str, name: str = '', builder: Optional[ir.IRBuilder] = None):
     """Create a global string constant and return pointer to it"""
     if not text.endswith('\0'):
         text += '\0'
     
     const_type = ir.ArrayType(ir.IntType(8), len(text))
-    if name == '' and builder is None:
-        const = ir.GlobalVariable(
-            module, const_type,
-            module.get_unique_name('str')
-        )
-    else:
-        const = ir.GlobalVariable(
-            module, const_type,
-            module.get_unique_name(name)
-        )
+    const = ir.GlobalVariable(module, const_type, module.get_unique_name('str')) if builder is None else\
+        ir.GlobalVariable(module, const_type, module.get_unique_name(name))
     
-    const.initializer = ir.Constant(const_type, bytearray(text.encode('utf-8')))
+    const.initializer = cast(None, ir.Constant(const_type, bytearray(text.encode('utf-8'))))
     const.global_constant = True
     const.linkage = 'internal'
     
     if builder is not None:
         return builder.gep(const, [zero(32), zero(32)], True, name)
     else:
-        return ir.Constant.gep(const, [zero(32), zero(32)])
+        return ir.Constant.gep(cast(ir.Constant, const), [zero(32), zero(32)])
 
 
 def create_static_buffer(
@@ -186,11 +167,11 @@ def create_static_buffer(
 ):
     buf_type = ir.ArrayType(element_type, size)
     buf = ir.GlobalVariable(module, buf_type, module.get_unique_name('buf'))
-    buf.initializer = ir.Constant(buf_type, None)
+    buf.initializer = cast(None, ir.Constant(buf_type, None))
     buf.linkage = 'internal'
 
     if builder is None:
-        return ir.Constant.gep(buf, [zero(32), zero(32)])
+        return ir.Constant.gep(cast(ir.Constant, buf), [zero(32), zero(32)])
     else:
         return builder.gep(buf, [zero(32), zero(32)], True, name)
 
@@ -208,7 +189,7 @@ def create_while_loop(
     exit_block = function.append_basic_block('while_exit')
     
     # Jump to condition block (only if current block isn't terminated)
-    if not builder.block.is_terminated:
+    if not cast(ir.Block, builder.block).is_terminated:
         builder.branch(condition_block)
     
     # Condition block
@@ -216,7 +197,7 @@ def create_while_loop(
     condition = condition_func(builder)
     
     # Only add cbranch if the block isn't already terminated
-    if not builder.block.is_terminated:
+    if not cast(ir.Block, builder.block).is_terminated:
         builder.cbranch(condition, body_block, exit_block)
     
     # Body block
@@ -224,13 +205,16 @@ def create_while_loop(
     body_func(builder)
     
     # Loop back to condition (only if not terminated)
-    if not builder.block.is_terminated:
+    if not cast(ir.Block, builder.block).is_terminated:
         builder.branch(condition_block)
     
     # Exit block - position builder here for continuation
     builder.position_at_end(exit_block)
 
-def create_for_loop(builder, start_val, end_val, step_val, loop_var_name, body_fn):
+def create_for_loop(
+    builder: ir.IRBuilder, start_val: Any, end_val: Any, step_val: Any, loop_var_name: str,
+    body_fn: Callable[[ir.IRBuilder, Any], Any]
+):
     """Create a for loop"""
 
     func = builder.function
