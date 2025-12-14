@@ -279,6 +279,7 @@ class CodeGenerationPass(CompilerPass):
                         new_func.linkage = 'external'
                 
                 self.file.codegen_data.object_files.append(obj_file)
+                self.scope.merge(file.scope)
                 
                 info(f'Imported gem library {node.path}')
         
