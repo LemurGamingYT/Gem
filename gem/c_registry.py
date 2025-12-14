@@ -55,6 +55,10 @@ class CRegistry:
                 lir.PointerType(lir.IntType(8)),
                 lir.IntType(32),
                 lir.PointerType(lir.IntType(8))
+            ], True)),
+            'asprintf': CFunction(lir.FunctionType(lir.IntType(32), [
+                lir.PointerType(lir.PointerType(lir.IntType(8))),
+                lir.PointerType(lir.IntType(8))
             ], True))
         }
     

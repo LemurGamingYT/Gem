@@ -11,6 +11,7 @@ from gem import ir
 
 
 VERSION = '0.0.1'
+CRUNTIME_DIR = Path(__file__).parent / 'cruntime'
 
 def parse(file: ir.File):
     ir_builder = IRBuilder(file)
@@ -61,14 +62,25 @@ def compile_to_obj(file: ir.File):
 def compile_to_exe(file: ir.File):
     obj_file = compile_to_obj(file)
     exe_file = file.path.with_suffix('.exe')
-    object_files_str = ' '.join(str(obj_file) for obj_file in file.codegen_data.object_files)
-    cmd = f'clang -o {exe_file} {obj_file} {object_files_str}'
+    object_files = file.codegen_data.object_files
+    object_files.append(obj_file)
+    for cfile in CRUNTIME_DIR.rglob('*.c'):
+        cobj = cfile.with_suffix('.o')
+        cmd = f'clang -c -o {cobj} {cfile}'
+        info(f'Executing compilation command: {cmd}')
+        
+        run(cmd, shell=True)
+        object_files.append(cobj)
+    
+    object_files_str = ' '.join(str(obj_file) for obj_file in object_files)
+    cmd = f'clang -o {exe_file} {object_files_str}'
     info(f'Executing compilation command: {cmd}')
     run(cmd, shell=True)
     info(f'Wrote executable to {exe_file}')
     
     if file.options.clean:
-        obj_file.unlink()
+        for obj in object_files:
+            obj.unlink()
 
 class ArgParser:
     def __init__(self, args: list[str]):
