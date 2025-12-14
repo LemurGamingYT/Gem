@@ -295,7 +295,7 @@ class AnalyserPass(CompilerPass):
             value_type = value_type.type
         
         callee = f'{value_type}.{node.attr}'
-        args = [value.to_arg()] + (node.args if node.args is not None else [])
+        args = [value.to_arg()] + (node.args or [])
         symbol = self.scope.symbol_table.get(callee)
         if symbol is None:
             node.pos.comptime_error(self.file, f'no attribute \'{node.attr}\' for type \'{value.type}\'')
