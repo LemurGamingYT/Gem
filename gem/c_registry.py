@@ -22,51 +22,51 @@ class CGlobal:
     llvm_name: Optional[str] = None
 
 class CRegistry:
-    def __init__(self, module: lir.Module, scope: ir.Scope):
+    @staticmethod
+    def get_all_cobjects():
+        return {
+            'malloc': CFunction(lir.FunctionType(lir.PointerType(lir.IntType(8)), [
+                lir.IntType(32)
+            ])),
+            'calloc': CFunction(lir.FunctionType(lir.PointerType(lir.IntType(8)), [
+                lir.IntType(32),
+                lir.IntType(32)
+            ])),
+            'realloc': CFunction(lir.FunctionType(lir.PointerType(lir.IntType(8)), [
+                lir.PointerType(lir.IntType(8)),
+                lir.IntType(32)
+            ])),
+            'free': CFunction(lir.FunctionType(lir.VoidType(), [
+                lir.PointerType(lir.IntType(8))
+            ])),
+            'memcpy': CFunction(lir.FunctionType(lir.VoidType(), [
+                lir.PointerType(lir.IntType(8)),
+                lir.PointerType(lir.IntType(8)),
+                lir.IntType(32),
+                lir.IntType(1)
+            ]), 'llvm.memcpy.p0.p0.i32'),
+            'puts': CFunction(lir.FunctionType(lir.VoidType(), [
+                lir.PointerType(lir.IntType(8))
+            ])),
+            'exit': CFunction(lir.FunctionType(lir.VoidType(), [
+                lir.IntType(32)
+            ])),
+            'snprintf': CFunction(lir.FunctionType(lir.IntType(32), [
+                lir.PointerType(lir.IntType(8)),
+                lir.IntType(32),
+                lir.PointerType(lir.IntType(8))
+            ], True))
+        }
+    
+    def __init__(self, module: lir.Module, file: ir.File):
         self.module = module
-        self.scope = scope
+        self.file = file
 
         self.c_globals: dict[str, CGlobal] = {}
         self.c_funcs: dict[str, CFunction] = {}
-
-        self.register('malloc', CFunction(lir.FunctionType(lir.PointerType(lir.IntType(8)), [
-            lir.IntType(32)
-        ])))
         
-        self.register('calloc', CFunction(lir.FunctionType(lir.PointerType(lir.IntType(8)), [
-            lir.IntType(32),
-            lir.IntType(32)
-        ])))
-
-        self.register('realloc', CFunction(lir.FunctionType(lir.PointerType(lir.IntType(8)), [
-            lir.PointerType(lir.IntType(8)),
-            lir.IntType(32)
-        ])))
-
-        self.register('free', CFunction(lir.FunctionType(lir.VoidType(), [
-            lir.PointerType(lir.IntType(8))
-        ])))
-
-        self.register('memcpy', CFunction(lir.FunctionType(lir.VoidType(), [
-            lir.PointerType(lir.IntType(8)),
-            lir.PointerType(lir.IntType(8)),
-            lir.IntType(32),
-            lir.IntType(1)
-        ]), 'llvm.memcpy.p0.p0.i32'))
-
-        self.register('puts', CFunction(lir.FunctionType(lir.VoidType(), [
-            lir.PointerType(lir.IntType(8))
-        ])))
-        
-        self.register('exit', CFunction(lir.FunctionType(lir.VoidType(), [
-            lir.IntType(32)
-        ])))
-
-        self.register('snprintf', CFunction(lir.FunctionType(lir.IntType(32), [
-            lir.PointerType(lir.IntType(8)),
-            lir.IntType(32),
-            lir.PointerType(lir.IntType(8))
-        ], True)))
+        for name, cobj in self.get_all_cobjects().items():
+            self.register(name, cobj)
 
     def register(self, name: str, cobj: CFunction | CGlobal):
         if isinstance(cobj, CFunction):

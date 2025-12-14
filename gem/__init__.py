@@ -16,7 +16,6 @@ def parse(file: ir.File):
     ir_builder = IRBuilder(file)
     program = ir_builder.build()
     program.nodes.insert(0, ir.Use(program.pos, 'core'))
-    file.program = program
     return program
 
 def compile_to_str(file: ir.File):
@@ -29,14 +28,12 @@ def compile_to_str(file: ir.File):
     
     analysed_program = AnalyserPass.run(file, program)
     info(f'Analysed Program:\n{analysed_program}')
-    file.program = analysed_program
     
     if file.options.debug:
         ir_file.write_text(str(analysed_program))
     
     memory_safe_program = MemoryManager.run(file, program)
     info(f'Memory Safe Program:\n{memory_safe_program}')
-    file.program = memory_safe_program
     
     if file.options.debug:
         ir_file.write_text(str(memory_safe_program))

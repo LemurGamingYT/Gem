@@ -12,10 +12,6 @@ def main():
     info('Backend: LLVM')
     info(f'Target: {llvm.get_default_triple()}')
     
-    llvm.initialize()
-    llvm.initialize_native_target()
-    llvm.initialize_native_asmprinter()
-    
     arg_parser = ArgParser(argv[1:])
     arg_parser.parse()
 

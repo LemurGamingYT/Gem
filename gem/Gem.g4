@@ -15,7 +15,7 @@ type: ID | type AMPERSAND;
 
 stmt
     : varAssign | funcAssign
-    | whileStmt | ifStmt | useStmt
+    | whileStmt | ifStmt | useStmt | externStmt
     | expr
     ;
 
@@ -41,6 +41,7 @@ elseifStmt: ELSE IF expr body;
 elseStmt: ELSE body;
 whileStmt: WHILE expr body;
 useStmt: USE STRING;
+externStmt: EXTERN ID;
 
 funcAssign
     : FUNC funcName /* genericParams? */ LPAREN params? RPAREN returnArrow? body

@@ -14,6 +14,28 @@ from gem.codegen_utils import (
 )
 
 
+def code_type_to_ir_type(type: lir.Type, scope: ir.Scope):
+    if isinstance(type, lir.IntType):
+        match type.width:
+            case 1:
+                return scope.type_map.get('bool')
+            case 32:
+                return scope.type_map.get('int')
+    elif isinstance(type, lir.FloatType):
+        return scope.type_map.get('float')
+    elif isinstance(type, lir.IdentifiedStructType):
+        return scope.type_map.get(type.name)
+    elif isinstance(type, lir.VoidType):
+        return scope.type_map.get('nil')
+    elif isinstance(type, lir.PointerType):
+        pointee = getattr(type, 'pointee')
+        if isinstance(pointee, lir.IntType):
+            match pointee.width:
+                case 8:
+                    return scope.type_map.get('any')
+        
+    raise NotImplementedError(type)
+
 class CodeGenerationPass(CompilerPass):
     def __init__(self, file: ir.File):
         super().__init__(file)
@@ -21,7 +43,7 @@ class CodeGenerationPass(CompilerPass):
         self.module = lir.Module(file.path.stem, lir.Context())
         self.module.triple = llvm.get_default_triple()
         
-        self.c_registry = CRegistry(self.module, self.scope)
+        self.c_registry = CRegistry(self.module, self.file)
         
         self.builder = lir.IRBuilder()
         
@@ -103,6 +125,11 @@ class CodeGenerationPass(CompilerPass):
             func.args[i].name = f'{param.name}_param'
         
         if node.flags.extern:
+            cobjects = CRegistry.get_all_cobjects()
+            cobj = cobjects[node.name]
+            if cobj.llvm_name is not None:
+                func.name = cobj.llvm_name
+            
             func.linkage = 'external'
         
         self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), func))

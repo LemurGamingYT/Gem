@@ -32,8 +32,8 @@ destroyed."""
 
 
 class MemoryManager(CompilerPass):
-    def __init__(self, scope):
-        super().__init__(scope)
+    def __init__(self, file):
+        super().__init__(file)
 
         self.can_extract = True
     
@@ -51,7 +51,7 @@ class MemoryManager(CompilerPass):
         self.can_extract = True
 
     def extract(self, node: ir.Node):
-        var_name = self.scope.unique_name
+        var_name = self.file.unique_name
         var = ir.Variable(node.pos, node.type, var_name, node)
         self.scope.body_nodes.append(var)
 

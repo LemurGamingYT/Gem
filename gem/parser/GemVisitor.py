@@ -114,6 +114,11 @@ class GemVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by GemParser#externStmt.
+    def visitExternStmt(self, ctx:GemParser.ExternStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by GemParser#funcAssign.
     def visitFuncAssign(self, ctx:GemParser.FuncAssignContext):
         return self.visitChildren(ctx)

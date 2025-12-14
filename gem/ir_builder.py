@@ -2,9 +2,11 @@ from antlr4.error.ErrorListener import ErrorListener as ANTLRErrorListener
 from antlr4 import InputStream, CommonTokenStream
 from antlr4.Token import CommonToken
 
+from gem.passes.code_generation import code_type_to_ir_type
 from gem.parser.GemVisitor import GemVisitor
 from gem.parser.GemParser import GemParser
 from gem.parser.GemLexer import GemLexer
+from gem.c_registry import CRegistry
 from gem import ir
 
 
@@ -79,15 +81,21 @@ class IRBuilder(GemVisitor):
         extend_type = self.visitType(ctx.type_()) if ctx.type_() is not None else None
         return func_name, extend_type
     
-    # def visitExternStmt(self, ctx: GemParser.ExternStmtContext):
-    #     return_type = self.visitReturnArrow(ctx.returnArrow())
-    #     func_name, extend_type = self.visitFuncName(ctx.funcName())
-    #     return ir.Function(
-    #         self.pos(ctx), return_type, func_name,
-    #         self.visitParams(ctx.params()), None,
-    #         flags=ir.FunctionFlags(extern=True),
-    #         extend_type=extend_type
-    #     )
+    def visitExternStmt(self, ctx: GemParser.ExternStmtContext):
+        pos = self.pos(ctx)
+        name = ctx.ID().getText()
+        cobjects = CRegistry.get_all_cobjects()
+        cobj = cobjects.get(name)
+        if cobj is None:
+            pos.comptime_error(self.file, f'unknown c object \'{name}\'')
+        
+        ret_type = code_type_to_ir_type(cobj.func_type.return_type, self.file.scope)
+        params = [
+            ir.Param(pos, code_type_to_ir_type(typ, self.file.scope), f'param{i}')
+            for i, typ in enumerate(cobj.func_type.args)
+        ]
+        
+        return ir.Function(pos, ret_type, name, params, flags=ir.FunctionFlags(extern=True))
     
     def visitGenericParams(self, ctx):
         return [self.visitGenericParam(param) for param in ctx.genericParam()]

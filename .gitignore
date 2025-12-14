@@ -1,6 +1,9 @@
+# compiler files
 compile_antlr4.bat
 __pycache__/
 *.pyc
+*.interp
+*.tokens
 
 # compiler generated files
 debug.log

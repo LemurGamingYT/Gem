@@ -120,7 +120,7 @@ class AnalyserPass(CompilerPass):
         return ir.Body(node.pos, node.type, nodes)
     
     def visit_Function(self, node: ir.Function, callsite: Optional[ir.Call] = None):
-        if node.name in self.scope.symbol_table.symbols:
+        if self.scope.symbol_table.has(node.name):
             node.pos.comptime_error(self.file, f'function \'{node.name}\' already defined')
         
         # if self.scope.parent is not None:

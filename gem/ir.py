@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from typing import Optional, Any
 from sys import exit as sys_exit
 from logging import error, info
-from functools import partial
 from pathlib import Path
 from copy import copy
 
@@ -106,22 +105,14 @@ class Scope:
     type_map: TypeMap = field(default_factory=TypeMap)
     dependencies: list[Path] = field(default_factory=list)
     body_nodes: list['Node'] = field(default_factory=list)
-    
-    @property
-    def unique_name(self):
-        return f'_{self._unique_name_idx}'
 
     def __post_init__(self):
         if self.parent is not None:
-            self._unique_name_idx = self.parent._unique_name_idx + 1
-
             self.symbol_table = self.parent.symbol_table.clone()
             self.type_map = self.parent.type_map.clone()
             
             self.dependencies = self.parent.dependencies
         else:
-            self._unique_name_idx = 0
-            
             self.type_map.add('int')
             self.type_map.add('float')
             self.type_map.add('string')
@@ -150,8 +141,15 @@ class File:
     path: Path
     scope: Scope
     options: CompileOptions
-    program: Optional['Program'] = None
     codegen_data: CodegenData = field(default_factory=CodegenData)
+    
+    @property
+    def unique_name(self):
+        self._unique_name_idx += 1
+        return f'_{self._unique_name_idx}'
+    
+    def __post_init__(self):
+        self._unique_name_idx = -1
 
 
 @dataclass(unsafe_hash=True)
