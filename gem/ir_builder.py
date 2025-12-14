@@ -91,7 +91,7 @@ class IRBuilder(GemVisitor):
         
         ret_type = code_type_to_ir_type(cobj.func_type.return_type, self.file.scope)
         params = [
-            ir.Param(pos, code_type_to_ir_type(typ, self.file.scope), f'param{i}')
+            ir.Param(pos, code_type_to_ir_type(typ, self.file.scope), f'{i}')
             for i, typ in enumerate(cobj.func_type.args)
         ]
         
