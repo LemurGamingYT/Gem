@@ -1,6 +1,7 @@
 fn string.new(pointer ptr, int length) -> string {
     ptr_copy = __alloc(length + 1)
     __memcpy(ptr_copy, ptr, length, false)
+    __null_terminate(ptr_copy, length)
     return __create_string(ptr_copy, length)
 }
 

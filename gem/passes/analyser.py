@@ -69,6 +69,11 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), self.scope.type_map.get('string'), 'str')
         ])
         
+        self.declare_intrinsic('__null_terminate', self.scope.type_map.get('nil'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'position')
+        ])
+        
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(
             ir.Position.zero(), ret_type, name, params

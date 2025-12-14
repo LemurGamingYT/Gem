@@ -1,4 +1,3 @@
-from ctypes import ArgumentError
 from typing import Any, Optional, Callable, Iterable
 
 from llvmlite import ir, binding as llvm

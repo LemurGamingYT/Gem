@@ -9,7 +9,8 @@ from gem.c_registry import CRegistry
 from gem.passes import CompilerPass
 from gem import ir
 from gem.codegen_utils import (
-    NULL, create_static_buffer, create_struct_value, define_identified_type, create_string_constant, get_allocated_struct_field_value, llint, get_struct_field
+    NULL, NULL_BYTE, create_static_buffer, create_struct_value, define_identified_type, create_string_constant,
+    get_allocated_struct_field_value, llint, get_struct_field
 )
 
 
@@ -373,10 +374,14 @@ class CodeGenerationPass(CompilerPass):
             case 'string.ptr':
                 self.builder.comment('string.ptr intrinsic')
                 
-                if isinstance(args[0].type, lir.PointerType):
+                if isinstance(getattr(args[0], 'type'), lir.PointerType):
                     return get_allocated_struct_field_value(self.builder, args[0], 0, 'string.ptr')
                 
                 return get_struct_field(self.builder, args[0], 0, 'string.ptr')
+            case '__null_terminate':
+                ptr, position = args
+                last_char_ptr = self.builder.gep(ptr, [position], True, 'last_char_ptr')
+                return self.builder.store(NULL_BYTE(), last_char_ptr)
     
     def visit_Call(self, node: ir.Call):
         args = [cast(lir.Value, self.visit(arg)) for arg in node.args]
