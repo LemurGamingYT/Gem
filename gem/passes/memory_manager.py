@@ -58,7 +58,7 @@ class MemoryManager(CompilerPass):
         info(f'Creating owned object: {var_name} of type {node.type}')
 
         self.scope.symbol_table.add(ir.Symbol(var_name, node.type, OwnedObject(node)))
-        return ir.Id(node.pos, node.type, var_name)
+        return var.to_id(node.pos)
 
     def destroy_owned_value(self, pos: ir.Position, symbol: ir.Symbol):
         destroy_symbol = self.scope.symbol_table.get(f'{symbol.type}.destroy')
@@ -183,9 +183,7 @@ class MemoryManager(CompilerPass):
         if else_body is not None:
             else_body = self.visit_Body(else_body)
         
-        return ir.If(node.pos, cond, body, else_body, [
-            self.visit_Elseif(elseif) for elseif in node.elseifs
-        ])
+        return ir.If(node.pos, cond, body, else_body, [self.visit_Elseif(elseif) for elseif in node.elseifs])
     
     def visit_While(self, node: ir.While):
         cond = self.visit(node.cond)

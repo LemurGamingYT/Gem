@@ -305,6 +305,9 @@ class Variable(Node):
     is_mutable: bool = False
     op: str | None = None
     
+    def to_id(self, pos: Position):
+        return Id(pos, self.type, self.name)
+    
     def __str__(self) -> str:
         return f'{"mut" if self.is_mutable else ""}{self.type} {self.name} = {self.value}'
 
@@ -501,6 +504,13 @@ class Attribute(Node):
 @dataclass
 class Ref(Node):
     name: str
+    
+    def to_id(self, file: File):
+        symbol = file.scope.symbol_table.get(self.name)
+        if symbol is None:
+            self.pos.comptime_error(file, f'cannot find reference to identifier that does not exist \'{self.name}\'')
+        
+        return Id(self.pos, symbol.type, self.name)
     
     def __str__(self):
         return f'&{self.name}'
