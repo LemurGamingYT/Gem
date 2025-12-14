@@ -38,8 +38,6 @@ def compile_to_ir(file: ir.File):
     code = compile_to_str(file)
     ll_file = file.path.with_suffix('.ll')
     ll_file.write_text(code)
-    info(f'Wrote LLVM IR to {ll_file}')
-    
     return ll_file
     
 def compile_to_obj(file: ir.File):
@@ -48,9 +46,6 @@ def compile_to_obj(file: ir.File):
     flags = ['-Wno-override-module', '-Wall', '-Werror', '-Wpedantic', '-Wextra']
     if file.options.optimize:
         flags.append('-O2')
-    
-    if file.options.debug:
-        flags.append('-g')
     
     flags_str = ' '.join(flags)
     cmd = f'clang -c -o {obj_file} {ll_file} {flags_str}'
