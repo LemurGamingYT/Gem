@@ -69,6 +69,9 @@ class AnalyserPass(CompilerPass):
         ])
         
         self.declare_intrinsic('__stdin', self.scope.type_map.get('FILE'), [])
+        self.declare_intrinsic('__print_pointer_no_newline', self.scope.type_map.get('nil'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
+        ])
         
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(
@@ -166,8 +169,8 @@ class AnalyserPass(CompilerPass):
     
     def visit_Variable(self, node: ir.Variable):
         value = self.visit(node.value)
-        if (symbol := self.scope.symbol_table.get(node.name)) is not None:
-            return self.visit(ir.Assignment(node.pos, symbol.type, node.name, value, node.op))
+        if self.scope.symbol_table.has(node.name):
+            return self.visit(ir.Assignment(node.pos, value.type, node.name, value, node.op))
         
         self.scope.symbol_table.add(ir.Symbol(node.name, value.type, value, node.is_mutable))
         return ir.Variable(node.pos, value.type, node.name, value, node.is_mutable)
@@ -185,13 +188,6 @@ class AnalyserPass(CompilerPass):
         if stdlib_path.exists():
             if self.file.path.stem == stdlib_path.stem:
                 return node
-            
-            if (stdlib_path / f'{node.path}.py').exists():
-                py_module = import_module(f'gem.stdlib.{node.path}.{node.path}')
-                instance = getattr(py_module, node.path)(self.scope)
-                instance.add_to_scope()
-                
-                info(f'Imported python library {node.path}')
             
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
                 from gem import parse

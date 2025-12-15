@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from logging import info
 from typing import cast
 
+from gem.passes.analyser import AnalyserPass
 from gem.passes import CompilerPass
 from gem import ir
 
@@ -189,6 +190,25 @@ class MemoryManager(CompilerPass):
         cond = self.visit(node.cond)
         body = self.visit_Body(node.body)
         return ir.While(node.pos, cond, body)
+    
+    def visit_Use(self, node: ir.Use):
+        stdlib_path = ir.STDLIB_PATH / node.path
+        if stdlib_path.exists():
+            if self.file.path.stem == stdlib_path.stem:
+                return node
+            
+            if (gem_file := stdlib_path / f'{node.path}.gem').exists():
+                from gem import parse
+                
+                file = ir.File(gem_file, ir.Scope(), self.file.options)
+                program = parse(file)
+                AnalyserPass.run(file, program)
+                
+                self.scope.merge(file.scope)
+                
+                info(f'Imported gem library {node.path}')
+        
+        return node
 
     def visit_Return(self, node: ir.Return):
         value = self.visit(node.value)

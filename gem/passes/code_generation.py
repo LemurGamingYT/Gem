@@ -260,13 +260,6 @@ class CodeGenerationPass(CompilerPass):
             if self.file.path.stem == stdlib_path.stem:
                 return node
             
-            if (stdlib_path / f'{node.path}.py').exists():
-                py_module = import_module(f'gem.stdlib.{node.path}.{node.path}')
-                instance = getattr(py_module, node.path)(self.scope)
-                instance.add_to_scope()
-                
-                info(f'Imported python library {node.path}')
-            
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
                 from gem import compile_to_obj
                 
@@ -407,6 +400,16 @@ class CodeGenerationPass(CompilerPass):
             case '__stdin':
                 acrt_iob_func = self.c_registry.get('__acrt_iob_func')
                 return self.builder.call(acrt_iob_func, [llint(0)], '__stdin')
+            case '__print_pointer_no_newline':
+                printf = self.c_registry.get('printf')
+                
+                string_fmt_name = 'string_fmt'
+                if string_fmt_name in self.module.globals:
+                    string_fmt = self.module.get_global(string_fmt_name)
+                else:
+                    string_fmt = create_string_constant(self.module, '%s', string_fmt_name)
+                
+                return self.builder.call(printf, [string_fmt, args[0]])
     
     def visit_Call(self, node: ir.Call):
         args = [cast(lir.Value, self.visit(arg)) for arg in node.args]

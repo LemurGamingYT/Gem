@@ -34,6 +34,8 @@ fn string.destroy(string& s) {
 }
 
 fn input(string prompt) -> string {
+    __print_pointer_no_newline(prompt.ptr)
+
     buf = __buffer(256)
     fgets(buf, 256, __stdin())
     

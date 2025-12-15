@@ -29,11 +29,11 @@ def compile_to_str(file: ir.File):
     if file.options.debug:
         ir_file.write_text(str(analysed_program))
     
-    memory_safe_program = MemoryManager.run(file, program)
+    memory_safe_program = MemoryManager.run(file, analysed_program)
     if file.options.debug:
         ir_file.write_text(str(memory_safe_program))
     
-    return CodeGenerationPass.run(file, analysed_program)
+    return CodeGenerationPass.run(file, memory_safe_program)
 
 def compile_to_ir(file: ir.File):
     code = compile_to_str(file)

@@ -68,6 +68,7 @@ class CRegistry:
             ])),
             '__acrt_iob_func': CFunction(lir.FunctionType(FILE_type, [lir.IntType(32)])),
             'strlen': CFunction(lir.FunctionType(lir.IntType(32), [lir.PointerType(lir.IntType(8))])),
+            'printf': CFunction(lir.FunctionType(lir.VoidType(), [lir.PointerType(lir.IntType(8))], True))
         }
     
     def __init__(self, module: lir.Module, file: ir.File):
