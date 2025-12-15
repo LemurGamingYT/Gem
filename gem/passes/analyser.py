@@ -49,6 +49,11 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'b')
         ])
         
+        self.declare_intrinsic('int.-.int', self.scope.type_map.get('int'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'a'),
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'b')
+        ])
+        
         self.declare_intrinsic('float.+.float', self.scope.type_map.get('float'), [
             ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'a'),
             ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'b')
@@ -62,6 +67,8 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr'),
             ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'position')
         ])
+        
+        self.declare_intrinsic('__stdin', self.scope.type_map.get('FILE'), [])
         
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(

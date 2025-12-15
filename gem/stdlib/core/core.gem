@@ -1,5 +1,7 @@
 extern memcpy
 extern puts
+extern fgets
+extern strlen
 
 
 fn string.new(pointer ptr, int length) -> string {
@@ -29,4 +31,13 @@ fn print_string(string value) {
 
 fn string.destroy(string& s) {
     __free(s.ptr)
+}
+
+fn input(string prompt) -> string {
+    buf = __buffer(256)
+    fgets(buf, 256, __stdin())
+    
+    input_len = strlen(buf)
+    __null_terminate(buf, input_len - 1)
+    return new string(buf, input_len - 1)
 }

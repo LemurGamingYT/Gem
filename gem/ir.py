@@ -113,13 +113,16 @@ class Scope:
             
             self.dependencies = self.parent.dependencies
         else:
+            # basic types
             self.type_map.add('int')
             self.type_map.add('float')
             self.type_map.add('string')
             self.type_map.add('bool')
             self.type_map.add('nil')
             
+            # internal types
             self.type_map.add('any')
+            self.type_map.add('FILE')
             self.type_map.add('pointer')
             self.type_map.add('function')
     

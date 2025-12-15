@@ -25,14 +25,13 @@ def code_type_to_ir_type(type: lir.Type, scope: ir.Scope):
         return scope.type_map.get('float')
     elif isinstance(type, lir.IdentifiedStructType):
         return scope.type_map.get(type.name)
+    elif isinstance(type, lir.LiteralStructType):
+        if len(type.elements) == 1 and isinstance((elem := type.elements[0]), lir.PointerType) and isinstance(getattr(elem, 'pointee'), lir.IntType):
+            return scope.type_map.get('FILE')
     elif isinstance(type, lir.VoidType):
         return scope.type_map.get('nil')
     elif isinstance(type, lir.PointerType):
-        pointee = getattr(type, 'pointee')
-        if isinstance(pointee, lir.IntType):
-            match pointee.width:
-                case 8:
-                    return scope.type_map.get('any')
+        return scope.type_map.get('pointer')
         
     raise NotImplementedError(type)
 
@@ -87,6 +86,8 @@ class CodeGenerationPass(CompilerPass):
                 return lir.VoidType()
             case 'pointer' | 'any':
                 return lir.PointerType(lir.IntType(8))
+            case 'FILE':
+                return lir.LiteralStructType([lir.PointerType(lir.IntType(8))])
             case _:
                 if node.type in self.codegen_types:
                     return self.codegen_types[node.type]
@@ -384,6 +385,10 @@ class CodeGenerationPass(CompilerPass):
                 self.builder.comment('int.+.int intrinsic')
                 
                 return self.builder.add(args[0], args[1], 'int.+.int')
+            case 'int.-.int':
+                self.builder.comment('int.-.int intrinsic')
+                
+                return self.builder.sub(args[0], args[1], 'int.-.int')
             case 'float.+.float':
                 self.builder.comment('float.+.float intrinsic')
                 
@@ -399,6 +404,9 @@ class CodeGenerationPass(CompilerPass):
                 ptr, position = args
                 last_char_ptr = self.builder.gep(ptr, [position], True, 'last_char_ptr')
                 return self.builder.store(NULL_BYTE(), last_char_ptr)
+            case '__stdin':
+                acrt_iob_func = self.c_registry.get('__acrt_iob_func')
+                return self.builder.call(acrt_iob_func, [llint(0)], '__stdin')
     
     def visit_Call(self, node: ir.Call):
         args = [cast(lir.Value, self.visit(arg)) for arg in node.args]
