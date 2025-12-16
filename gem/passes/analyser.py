@@ -70,6 +70,9 @@ class AnalyserPass(CompilerPass):
         ])
         
         self.declare_intrinsic('__oom_msg', self.scope.type_map.get('pointer'), [])
+        self.declare_intrinsic('string.length', self.scope.type_map.get('int'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('string'), 's')
+        ])
         
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(

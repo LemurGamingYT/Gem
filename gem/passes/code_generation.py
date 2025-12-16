@@ -381,6 +381,9 @@ class CodeGenerationPass(CompilerPass):
                     return lir.Constant.gep(self.module.get_global(out_of_memory_msg_name), [zero(32), zero(32)])
                 else:
                     return create_string_constant(self.module, 'out of memory', out_of_memory_msg_name)
+            case 'string.length':
+                string = args[0]
+                return get_struct_field(self.builder, string, 1, 'string.length')
     
     def visit_Call(self, node: ir.Call):
         args = [self.visit(arg) for arg in node.args]

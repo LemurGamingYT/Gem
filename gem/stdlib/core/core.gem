@@ -69,6 +69,10 @@ fn print_string(string value) {
     puts(value.ptr)
 }
 
+fn string.clone(string s) -> string {
+    return new string(s.ptr, s.length)
+}
+
 fn string.destroy(string& s) {
     gem_free(s.ptr)
 }
