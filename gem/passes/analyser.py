@@ -12,7 +12,7 @@ class AnalyserPass(CompilerPass):
         super().__init__(file)
         
         self.declare_intrinsic('panic', self.scope.type_map.get('nil'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('string'), 'msg')
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'msg')
         ])
         
         self.declare_intrinsic('__buffer', self.scope.type_map.get('pointer'), [
@@ -22,14 +22,6 @@ class AnalyserPass(CompilerPass):
         self.declare_intrinsic('__create_string', self.scope.type_map.get('string'), [
             ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr'),
             ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'length')
-        ])
-        
-        self.declare_intrinsic('__alloc', self.scope.type_map.get('pointer'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'size')
-        ])
-        
-        self.declare_intrinsic('__free', self.scope.type_map.get('nil'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
         ])
         
         self.declare_intrinsic('__format_int', self.scope.type_map.get('int'), [
@@ -72,6 +64,12 @@ class AnalyserPass(CompilerPass):
         self.declare_intrinsic('__print_pointer_no_newline', self.scope.type_map.get('nil'), [
             ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
         ])
+        
+        self.declare_intrinsic('__is_null', self.scope.type_map.get('bool'), [
+            ir.Param(ir.Position.zero(), self.scope.type_map.get('pointer'), 'ptr')
+        ])
+        
+        self.declare_intrinsic('__oom_msg', self.scope.type_map.get('pointer'), [])
         
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(
@@ -118,10 +116,33 @@ class AnalyserPass(CompilerPass):
         
         return ir.Body(node.pos, node.type, nodes)
     
-    def visit_Function(self, node: ir.Function, callsite: Optional[ir.Call] = None):
-        if self.scope.symbol_table.has(node.name):
-            node.pos.comptime_error(self.file, f'function \'{node.name}\' already defined')
+    def visit_Elseif(self, node: ir.Elseif):
+        cond = self.visit(node.cond)
+        with self.child_scope():
+            body = self.visit(node.body)
         
+        return ir.Elseif(node.pos, cond, body)
+    
+    def visit_If(self, node: ir.If):
+        cond = self.visit(node.cond)
+        with self.child_scope():
+            body = self.visit(node.body)
+        
+        else_body = node.else_body
+        if else_body is not None:
+            with self.child_scope():
+                else_body = self.visit(else_body)
+        
+        return ir.If(node.pos, cond, body, else_body, [self.visit(elseif) for elseif in node.elseifs])
+    
+    def visit_While(self, node: ir.While):
+        cond = self.visit(node.cond)
+        with self.child_scope():
+            body = self.visit(node.body)
+        
+        return ir.While(node.pos, cond, body)
+    
+    def visit_Function(self, node: ir.Function, callsite: Optional[ir.Call] = None):
         # if self.scope.parent is not None:
         #     node.pos.comptime_error(self.file, 'functions can only be defined at the top level')
         
@@ -149,9 +170,23 @@ class AnalyserPass(CompilerPass):
             generics_str = ', '.join(str(type) for type in generic_map.values())
             func_name += f'<{generics_str}>'
         
-        func = ir.Function(node.pos, ret_type, func_name, params, node.body, overloads, flags)
+        base_name = func_name
+        is_overload = self.scope.symbol_table.has(base_name)
+        if is_overload:
+            if len(params) > 0:
+                param_types_str = ''.join(f'.{param.type}' for param in params)
+                func_name += f'.overload{param_types_str}'
+            else:
+                func_name += '.overload.noargs'
         
-        self.scope.symbol_table.add(ir.Symbol(func.name, self.scope.type_map.get('function'), func))
+        func = ir.Function(node.pos, ret_type, func_name, params, node.body, overloads, flags)
+        if is_overload:
+            symbol = cast(ir.Symbol, self.scope.symbol_table.get(base_name))
+            base = cast(ir.Function, symbol.value)
+            base.overloads.append(func)
+        else:
+            self.scope.symbol_table.add(ir.Symbol(func.name, self.scope.type_map.get('function'), func))
+        
         body = node.body
         if body is not None:
             with self.child_scope():

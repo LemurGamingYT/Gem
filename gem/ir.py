@@ -27,7 +27,7 @@ class Position:
         src = file.path.read_text('utf-8')
         print(src.splitlines()[self.line - 1])
         print(' ' * self.column + '^')
-        print(f'{Style.BRIGHT}{Fore.RED}error: {message}{Style.RESET_ALL}')
+        print(f'{Style.BRIGHT}{Fore.RED}error at line {self.line}, column {self.column}: {message}{Style.RESET_ALL}')
         error(message)
         
         if file.options.debug:

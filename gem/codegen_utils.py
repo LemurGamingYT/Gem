@@ -97,11 +97,12 @@ def get_ptr(instr: ir.LoadInstr):
     """Get pointer from a load instruction"""
     return instr.operands[0]
 
-def allocate(builder: ir.IRBuilder, value: Any, name: str = ''):
-    """Allocate a value on the stack as a pointer"""
+def allocate(builder: ir.IRBuilder, value: Any = None, name: str = '', size: int | None = None):
+    """Stack-allocate a slot for size elements of the given type and store the given value. (default one element)"""
     
-    ptr = builder.alloca(value.type, name=name)
-    builder.store(value, ptr)
+    ptr = builder.alloca(value.type, size, name)
+    if value is None:
+        builder.store(value, ptr)
     
     return ptr
 
@@ -148,17 +149,13 @@ def create_string_constant(module: ir.Module, text: str, name: str = '', builder
         text += '\0'
     
     const_type = ir.ArrayType(ir.IntType(8), len(text))
-    const = ir.GlobalVariable(module, const_type, module.get_unique_name('str')) if builder is None else\
-        ir.GlobalVariable(module, const_type, module.get_unique_name(name))
-    
+    const = ir.GlobalVariable(module, const_type, module.get_unique_name(name or 'str'))
     const.initializer = cast(None, ir.Constant(const_type, bytearray(text.encode('utf-8'))))
     const.global_constant = True
     const.linkage = 'internal'
     
-    if builder is not None:
-        return builder.gep(const, [zero(32), zero(32)], True, name)
-    else:
-        return ir.Constant.gep(cast(ir.Constant, const), [zero(32), zero(32)])
+    return ir.Constant.gep(cast(ir.Constant, const), [zero(32), zero(32)]) if builder is None else\
+        builder.gep(const, [zero(32), zero(32)], True, name)
 
 
 def create_static_buffer(

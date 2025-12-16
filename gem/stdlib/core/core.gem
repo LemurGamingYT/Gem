@@ -2,12 +2,52 @@ extern memcpy
 extern puts
 extern fgets
 extern strlen
+extern malloc
+extern free
+extern calloc
+extern realloc
 
+
+fn gem_alloc(int size) -> pointer {
+    ptr = malloc(size)
+    if __is_null(ptr) {
+        panic(__oom_msg())
+    }
+    
+    return ptr
+}
+
+fn gem_free(pointer ptr) {
+    free(ptr)
+}
+
+fn gem_realloc(pointer ptr, int size) -> pointer {
+    new_ptr = realloc(ptr, size)
+    if __is_null(new_ptr) {
+        panic(__oom_msg())
+    }
+    
+    return new_ptr
+}
+
+fn gem_zalloc(int size, int length) -> pointer {
+    ptr = calloc(size, length)
+    if __is_null(ptr) {
+        panic(__oom_msg())
+    }
+    
+    return ptr
+}
 
 fn string.new(pointer ptr, int length) -> string {
-    ptr_copy = __alloc(length + 1)
+    ptr_copy = gem_alloc(length + 1)
     memcpy(ptr_copy, ptr, length, false)
     __null_terminate(ptr_copy, length)
+    return __create_string(ptr_copy, length)
+}
+
+fn string.new(int length) -> string {
+    ptr_copy = gem_zalloc(1, length + 1)
     return __create_string(ptr_copy, length)
 }
 
@@ -30,7 +70,7 @@ fn print_string(string value) {
 }
 
 fn string.destroy(string& s) {
-    __free(s.ptr)
+    gem_free(s.ptr)
 }
 
 fn input(string prompt) -> string {
@@ -42,4 +82,8 @@ fn input(string prompt) -> string {
     input_len = strlen(buf)
     __null_terminate(buf, input_len - 1)
     return new string(buf, input_len - 1)
+}
+
+fn input() -> string {
+    return input("")
 }
