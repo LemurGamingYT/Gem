@@ -36,3 +36,5 @@ int asprintf(char **strp, const char *fmt, ...) {
     return r;
 }
 #endif
+
+// https://stackoverflow.com/questions/4785381/replacement-for-ms-vscprintf-on-macos-linux

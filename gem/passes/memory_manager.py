@@ -100,7 +100,7 @@ class MemoryManager(CompilerPass):
         
         return self.extract(node)
 
-    def visit(self, node) -> ir.Node:
+    def visit(self, node: ir.Node) -> ir.Node:
         return self.extract_node(super().visit(node))
 
     def visit_Program(self, node: ir.Program):
