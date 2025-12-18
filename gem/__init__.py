@@ -14,6 +14,7 @@ VERSION = '0.0.1'
 CRUNTIME_DIR = Path(__file__).parent / 'cruntime'
 
 def parse(file: ir.File):
+    info(f'PARSING FILE {file.path.as_posix()}')
     ir_builder = IRBuilder(file)
     program = ir_builder.build()
     program.nodes.insert(0, ir.Use(program.pos, 'core'))
@@ -25,14 +26,17 @@ def compile_to_str(file: ir.File):
     if file.options.debug:
         ir_file.write_text(str(program))
     
+    info(f'ANALYSING FILE {file.path.as_posix()}')
     analysed_program = AnalyserPass.run(file, program)
     if file.options.debug:
         ir_file.write_text(str(analysed_program))
     
+    info(f'MAKING {file.path.as_posix()} MEMORY SAFE')
     memory_safe_program = MemoryManager.run(file, analysed_program)
     if file.options.debug:
         ir_file.write_text(str(memory_safe_program))
     
+    info(f'GENERATING CODE FOR FILE {file.path.as_posix()}')
     return CodeGenerationPass.run(file, memory_safe_program)
 
 def compile_to_ir(file: ir.File):

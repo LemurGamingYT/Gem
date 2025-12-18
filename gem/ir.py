@@ -291,6 +291,12 @@ class Function(Node):
     def call(self, pos: Position, args: list[Arg]):
         return Call(pos, self.ret_type, self.name, args)
     
+    def replace_generic(self, type: Type, generic_map: dict[str, Type]):
+        if str(type) not in generic_map:
+            return type
+        
+        return generic_map[str(type)]
+    
     def create_generic_map(self, args: list[Arg]):
         generic_map = {}
         for param, arg in zip(self.params, args):

@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from importlib import import_module
 from typing import cast, Optional
 from logging import info
 
@@ -151,14 +150,17 @@ class AnalyserPass(CompilerPass):
         
         if node.is_generic and callsite is None:
             self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node))
+            info(f'Compiled generic function {node.name}')
             return node
         
         generic_map = node.create_generic_map(callsite.args if callsite is not None else [])
-        for name, typ in generic_map.items():
-            self.scope.type_map.add_type(name, typ)
+        ret_type = self.visit(node.replace_generic(node.ret_type, generic_map))
+        preprocessed_params = [
+            ir.Param(param.pos, node.replace_generic(param.type, generic_map), param.name)
+            for param in node.params
+        ]
+        params = [self.visit(param) for param in preprocessed_params]
         
-        ret_type = self.visit(node.ret_type)
-        params = [self.visit(param) for param in node.params]
         overloads = [self.visit(overload) for overload in node.overloads]
         extend_type = self.visit(node.extend_type) if node.extend_type is not None else None
         flags = node.flags
@@ -193,7 +195,6 @@ class AnalyserPass(CompilerPass):
         body = node.body
         if body is not None:
             with self.child_scope():
-                info(f'Entering function {func.name}\'s body')
                 for param in params:
                     self.scope.symbol_table.add(ir.Symbol(param.name, param.type, param, param.is_mutable))
                 
@@ -201,7 +202,9 @@ class AnalyserPass(CompilerPass):
         
         if node.is_generic:
             node.overloads.append(func)
-            return func
+            
+            generic_map_str = ', '.join(f'{k}={v}' for k, v in generic_map.items())
+            info(f'Compiled generic function {node.name} with the following parameters {generic_map_str}')
         
         return func
     

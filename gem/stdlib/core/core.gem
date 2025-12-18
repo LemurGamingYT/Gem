@@ -65,7 +65,7 @@ fn float.to_string(float f) -> string {
 
 fn string.to_string(string s) -> string { return s }
 fn bool.to_string(bool b) -> string { return "true" if b else "false" }
-fn print_string(string value) {
+fn print(string value) {
     puts(value.ptr)
 }
 

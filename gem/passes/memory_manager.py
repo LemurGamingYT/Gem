@@ -104,7 +104,6 @@ class MemoryManager(CompilerPass):
         return self.extract_node(super().visit(node))
 
     def visit_Program(self, node: ir.Program):
-        info('Running memory manager')
         return ir.Program(node.pos, [self.visit(stmt) for stmt in node.nodes])
 
     def visit_Body(self, node: ir.Body):
@@ -139,7 +138,10 @@ class MemoryManager(CompilerPass):
             
             self.scope = old_scope
         
-        return ir.Function(node.pos, node.type, node.name, node.params, body, node.overloads, node.flags, node.extend_type)
+        return ir.Function(
+            node.pos, node.type, node.name, node.params, body, node.overloads, node.flags, node.extend_type,
+            node.generic_params
+        )
 
     def visit_Variable(self, node: ir.Variable):
         # don't extract a variable's value (the variable owns it's value)

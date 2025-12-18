@@ -10,7 +10,7 @@ else:
 
 def serializedATN():
     return [
-        4,1,44,262,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
+        4,1,44,265,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
         6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,
         2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,
         7,20,2,21,7,21,1,0,5,0,46,8,0,10,0,12,0,49,9,0,1,0,1,0,1,1,1,1,1,
@@ -23,87 +23,88 @@ def serializedATN():
         1,12,1,12,1,12,3,12,138,8,12,1,13,1,13,1,13,1,13,5,13,144,8,13,10,
         13,12,13,147,9,13,1,13,3,13,150,8,13,1,14,1,14,1,14,1,14,1,14,1,
         15,1,15,1,15,1,16,1,16,1,16,1,16,1,17,1,17,1,17,1,18,1,18,1,18,1,
-        19,1,19,1,19,1,19,3,19,174,8,19,1,19,1,19,3,19,178,8,19,1,19,1,19,
-        1,20,1,20,3,20,184,8,20,1,20,1,20,1,20,3,20,189,8,20,1,20,1,20,1,
-        20,3,20,194,8,20,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,3,
-        21,205,8,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,
-        21,1,21,1,21,1,21,3,21,221,8,21,1,21,1,21,1,21,1,21,3,21,227,8,21,
+        19,1,19,1,19,3,19,173,8,19,1,19,1,19,3,19,177,8,19,1,19,1,19,3,19,
+        181,8,19,1,19,1,19,1,20,1,20,3,20,187,8,20,1,20,1,20,1,20,3,20,192,
+        8,20,1,20,1,20,1,20,3,20,197,8,20,1,21,1,21,1,21,1,21,1,21,1,21,
+        1,21,1,21,1,21,3,21,208,8,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,
+        1,21,1,21,1,21,1,21,1,21,1,21,1,21,3,21,224,8,21,1,21,1,21,1,21,
+        1,21,3,21,230,8,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,
         1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,
-        1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,3,21,252,8,21,
-        1,21,3,21,255,8,21,5,21,257,8,21,10,21,12,21,260,9,21,1,21,0,2,14,
-        42,22,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,
-        42,0,6,1,0,18,22,2,0,18,19,31,31,1,0,20,22,1,0,18,19,1,0,23,28,1,
-        0,29,30,284,0,47,1,0,0,0,2,52,1,0,0,0,4,54,1,0,0,0,6,63,1,0,0,0,
-        8,68,1,0,0,0,10,76,1,0,0,0,12,78,1,0,0,0,14,89,1,0,0,0,16,106,1,
-        0,0,0,18,113,1,0,0,0,20,115,1,0,0,0,22,124,1,0,0,0,24,137,1,0,0,
-        0,26,139,1,0,0,0,28,151,1,0,0,0,30,156,1,0,0,0,32,159,1,0,0,0,34,
-        163,1,0,0,0,36,166,1,0,0,0,38,169,1,0,0,0,40,193,1,0,0,0,42,226,
-        1,0,0,0,44,46,3,16,8,0,45,44,1,0,0,0,46,49,1,0,0,0,47,45,1,0,0,0,
-        47,48,1,0,0,0,48,50,1,0,0,0,49,47,1,0,0,0,50,51,5,0,0,1,51,1,1,0,
-        0,0,52,53,3,42,21,0,53,3,1,0,0,0,54,59,3,2,1,0,55,56,5,33,0,0,56,
-        58,3,2,1,0,57,55,1,0,0,0,58,61,1,0,0,0,59,57,1,0,0,0,59,60,1,0,0,
-        0,60,5,1,0,0,0,61,59,1,0,0,0,62,64,5,6,0,0,63,62,1,0,0,0,63,64,1,
-        0,0,0,64,65,1,0,0,0,65,66,3,14,7,0,66,67,5,17,0,0,67,7,1,0,0,0,68,
-        73,3,6,3,0,69,70,5,33,0,0,70,72,3,6,3,0,71,69,1,0,0,0,72,75,1,0,
-        0,0,73,71,1,0,0,0,73,74,1,0,0,0,74,9,1,0,0,0,75,73,1,0,0,0,76,77,
-        5,17,0,0,77,11,1,0,0,0,78,79,5,26,0,0,79,84,3,10,5,0,80,81,5,33,
-        0,0,81,83,3,10,5,0,82,80,1,0,0,0,83,86,1,0,0,0,84,82,1,0,0,0,84,
-        85,1,0,0,0,85,87,1,0,0,0,86,84,1,0,0,0,87,88,5,25,0,0,88,13,1,0,
-        0,0,89,90,6,7,-1,0,90,91,5,17,0,0,91,96,1,0,0,0,92,93,10,1,0,0,93,
-        95,5,40,0,0,94,92,1,0,0,0,95,98,1,0,0,0,96,94,1,0,0,0,96,97,1,0,
-        0,0,97,15,1,0,0,0,98,96,1,0,0,0,99,107,3,40,20,0,100,107,3,38,19,
-        0,101,107,3,32,16,0,102,107,3,26,13,0,103,107,3,34,17,0,104,107,
-        3,36,18,0,105,107,3,42,21,0,106,99,1,0,0,0,106,100,1,0,0,0,106,101,
-        1,0,0,0,106,102,1,0,0,0,106,103,1,0,0,0,106,104,1,0,0,0,106,105,
-        1,0,0,0,107,17,1,0,0,0,108,114,3,16,8,0,109,110,5,7,0,0,110,114,
-        3,42,21,0,111,114,5,10,0,0,112,114,5,11,0,0,113,108,1,0,0,0,113,
-        109,1,0,0,0,113,111,1,0,0,0,113,112,1,0,0,0,114,19,1,0,0,0,115,119,
-        5,37,0,0,116,118,3,18,9,0,117,116,1,0,0,0,118,121,1,0,0,0,119,117,
-        1,0,0,0,119,120,1,0,0,0,120,122,1,0,0,0,121,119,1,0,0,0,122,123,
-        5,38,0,0,123,21,1,0,0,0,124,125,5,39,0,0,125,126,3,14,7,0,126,23,
-        1,0,0,0,127,128,3,14,7,0,128,129,5,32,0,0,129,130,5,17,0,0,130,138,
-        1,0,0,0,131,132,3,14,7,0,132,133,5,32,0,0,133,134,5,3,0,0,134,138,
-        1,0,0,0,135,138,5,17,0,0,136,138,5,3,0,0,137,127,1,0,0,0,137,131,
-        1,0,0,0,137,135,1,0,0,0,137,136,1,0,0,0,138,25,1,0,0,0,139,140,5,
-        1,0,0,140,141,3,42,21,0,141,145,3,20,10,0,142,144,3,28,14,0,143,
-        142,1,0,0,0,144,147,1,0,0,0,145,143,1,0,0,0,145,146,1,0,0,0,146,
-        149,1,0,0,0,147,145,1,0,0,0,148,150,3,30,15,0,149,148,1,0,0,0,149,
-        150,1,0,0,0,150,27,1,0,0,0,151,152,5,5,0,0,152,153,5,1,0,0,153,154,
-        3,42,21,0,154,155,3,20,10,0,155,29,1,0,0,0,156,157,5,5,0,0,157,158,
-        3,20,10,0,158,31,1,0,0,0,159,160,5,9,0,0,160,161,3,42,21,0,161,162,
-        3,20,10,0,162,33,1,0,0,0,163,164,5,2,0,0,164,165,5,15,0,0,165,35,
-        1,0,0,0,166,167,5,8,0,0,167,168,5,17,0,0,168,37,1,0,0,0,169,170,
-        5,4,0,0,170,171,3,24,12,0,171,173,5,35,0,0,172,174,3,8,4,0,173,172,
-        1,0,0,0,173,174,1,0,0,0,174,175,1,0,0,0,175,177,5,36,0,0,176,178,
-        3,22,11,0,177,176,1,0,0,0,177,178,1,0,0,0,178,179,1,0,0,0,179,180,
-        3,20,10,0,180,39,1,0,0,0,181,183,5,17,0,0,182,184,7,0,0,0,183,182,
-        1,0,0,0,183,184,1,0,0,0,184,185,1,0,0,0,185,186,5,34,0,0,186,194,
-        3,42,21,0,187,189,5,6,0,0,188,187,1,0,0,0,188,189,1,0,0,0,189,190,
-        1,0,0,0,190,191,5,17,0,0,191,192,5,34,0,0,192,194,3,42,21,0,193,
-        181,1,0,0,0,193,188,1,0,0,0,194,41,1,0,0,0,195,196,6,21,-1,0,196,
-        197,5,35,0,0,197,198,3,14,7,0,198,199,5,36,0,0,199,200,3,42,21,16,
-        200,227,1,0,0,0,201,202,5,17,0,0,202,204,5,35,0,0,203,205,3,4,2,
-        0,204,203,1,0,0,0,204,205,1,0,0,0,205,206,1,0,0,0,206,227,5,36,0,
-        0,207,208,5,35,0,0,208,209,3,42,21,0,209,210,5,36,0,0,210,227,1,
-        0,0,0,211,227,5,13,0,0,212,227,5,14,0,0,213,227,5,15,0,0,214,227,
-        5,16,0,0,215,227,5,17,0,0,216,217,5,3,0,0,217,218,3,14,7,0,218,220,
-        5,35,0,0,219,221,3,4,2,0,220,219,1,0,0,0,220,221,1,0,0,0,221,222,
-        1,0,0,0,222,223,5,36,0,0,223,227,1,0,0,0,224,225,7,1,0,0,225,227,
-        3,42,21,1,226,195,1,0,0,0,226,201,1,0,0,0,226,207,1,0,0,0,226,211,
-        1,0,0,0,226,212,1,0,0,0,226,213,1,0,0,0,226,214,1,0,0,0,226,215,
-        1,0,0,0,226,216,1,0,0,0,226,224,1,0,0,0,227,258,1,0,0,0,228,229,
-        10,7,0,0,229,230,5,1,0,0,230,231,3,42,21,0,231,232,5,5,0,0,232,233,
-        3,42,21,8,233,257,1,0,0,0,234,235,10,5,0,0,235,236,7,2,0,0,236,257,
-        3,42,21,6,237,238,10,4,0,0,238,239,7,3,0,0,239,257,3,42,21,5,240,
-        241,10,3,0,0,241,242,7,4,0,0,242,257,3,42,21,4,243,244,10,2,0,0,
-        244,245,7,5,0,0,245,257,3,42,21,3,246,247,10,6,0,0,247,248,5,32,
-        0,0,248,254,5,17,0,0,249,251,5,35,0,0,250,252,3,4,2,0,251,250,1,
-        0,0,0,251,252,1,0,0,0,252,253,1,0,0,0,253,255,5,36,0,0,254,249,1,
-        0,0,0,254,255,1,0,0,0,255,257,1,0,0,0,256,228,1,0,0,0,256,234,1,
-        0,0,0,256,237,1,0,0,0,256,240,1,0,0,0,256,243,1,0,0,0,256,246,1,
-        0,0,0,257,260,1,0,0,0,258,256,1,0,0,0,258,259,1,0,0,0,259,43,1,0,
-        0,0,260,258,1,0,0,0,24,47,59,63,73,84,96,106,113,119,137,145,149,
-        173,177,183,188,193,204,220,226,251,254,256,258
+        1,21,3,21,255,8,21,1,21,3,21,258,8,21,5,21,260,8,21,10,21,12,21,
+        263,9,21,1,21,0,2,14,42,22,0,2,4,6,8,10,12,14,16,18,20,22,24,26,
+        28,30,32,34,36,38,40,42,0,6,1,0,18,22,2,0,18,19,31,31,1,0,20,22,
+        1,0,18,19,1,0,23,28,1,0,29,30,288,0,47,1,0,0,0,2,52,1,0,0,0,4,54,
+        1,0,0,0,6,63,1,0,0,0,8,68,1,0,0,0,10,76,1,0,0,0,12,78,1,0,0,0,14,
+        89,1,0,0,0,16,106,1,0,0,0,18,113,1,0,0,0,20,115,1,0,0,0,22,124,1,
+        0,0,0,24,137,1,0,0,0,26,139,1,0,0,0,28,151,1,0,0,0,30,156,1,0,0,
+        0,32,159,1,0,0,0,34,163,1,0,0,0,36,166,1,0,0,0,38,169,1,0,0,0,40,
+        196,1,0,0,0,42,229,1,0,0,0,44,46,3,16,8,0,45,44,1,0,0,0,46,49,1,
+        0,0,0,47,45,1,0,0,0,47,48,1,0,0,0,48,50,1,0,0,0,49,47,1,0,0,0,50,
+        51,5,0,0,1,51,1,1,0,0,0,52,53,3,42,21,0,53,3,1,0,0,0,54,59,3,2,1,
+        0,55,56,5,33,0,0,56,58,3,2,1,0,57,55,1,0,0,0,58,61,1,0,0,0,59,57,
+        1,0,0,0,59,60,1,0,0,0,60,5,1,0,0,0,61,59,1,0,0,0,62,64,5,6,0,0,63,
+        62,1,0,0,0,63,64,1,0,0,0,64,65,1,0,0,0,65,66,3,14,7,0,66,67,5,17,
+        0,0,67,7,1,0,0,0,68,73,3,6,3,0,69,70,5,33,0,0,70,72,3,6,3,0,71,69,
+        1,0,0,0,72,75,1,0,0,0,73,71,1,0,0,0,73,74,1,0,0,0,74,9,1,0,0,0,75,
+        73,1,0,0,0,76,77,5,17,0,0,77,11,1,0,0,0,78,79,5,26,0,0,79,84,3,10,
+        5,0,80,81,5,33,0,0,81,83,3,10,5,0,82,80,1,0,0,0,83,86,1,0,0,0,84,
+        82,1,0,0,0,84,85,1,0,0,0,85,87,1,0,0,0,86,84,1,0,0,0,87,88,5,25,
+        0,0,88,13,1,0,0,0,89,90,6,7,-1,0,90,91,5,17,0,0,91,96,1,0,0,0,92,
+        93,10,1,0,0,93,95,5,40,0,0,94,92,1,0,0,0,95,98,1,0,0,0,96,94,1,0,
+        0,0,96,97,1,0,0,0,97,15,1,0,0,0,98,96,1,0,0,0,99,107,3,40,20,0,100,
+        107,3,38,19,0,101,107,3,32,16,0,102,107,3,26,13,0,103,107,3,34,17,
+        0,104,107,3,36,18,0,105,107,3,42,21,0,106,99,1,0,0,0,106,100,1,0,
+        0,0,106,101,1,0,0,0,106,102,1,0,0,0,106,103,1,0,0,0,106,104,1,0,
+        0,0,106,105,1,0,0,0,107,17,1,0,0,0,108,114,3,16,8,0,109,110,5,7,
+        0,0,110,114,3,42,21,0,111,114,5,10,0,0,112,114,5,11,0,0,113,108,
+        1,0,0,0,113,109,1,0,0,0,113,111,1,0,0,0,113,112,1,0,0,0,114,19,1,
+        0,0,0,115,119,5,37,0,0,116,118,3,18,9,0,117,116,1,0,0,0,118,121,
+        1,0,0,0,119,117,1,0,0,0,119,120,1,0,0,0,120,122,1,0,0,0,121,119,
+        1,0,0,0,122,123,5,38,0,0,123,21,1,0,0,0,124,125,5,39,0,0,125,126,
+        3,14,7,0,126,23,1,0,0,0,127,128,3,14,7,0,128,129,5,32,0,0,129,130,
+        5,17,0,0,130,138,1,0,0,0,131,132,3,14,7,0,132,133,5,32,0,0,133,134,
+        5,3,0,0,134,138,1,0,0,0,135,138,5,17,0,0,136,138,5,3,0,0,137,127,
+        1,0,0,0,137,131,1,0,0,0,137,135,1,0,0,0,137,136,1,0,0,0,138,25,1,
+        0,0,0,139,140,5,1,0,0,140,141,3,42,21,0,141,145,3,20,10,0,142,144,
+        3,28,14,0,143,142,1,0,0,0,144,147,1,0,0,0,145,143,1,0,0,0,145,146,
+        1,0,0,0,146,149,1,0,0,0,147,145,1,0,0,0,148,150,3,30,15,0,149,148,
+        1,0,0,0,149,150,1,0,0,0,150,27,1,0,0,0,151,152,5,5,0,0,152,153,5,
+        1,0,0,153,154,3,42,21,0,154,155,3,20,10,0,155,29,1,0,0,0,156,157,
+        5,5,0,0,157,158,3,20,10,0,158,31,1,0,0,0,159,160,5,9,0,0,160,161,
+        3,42,21,0,161,162,3,20,10,0,162,33,1,0,0,0,163,164,5,2,0,0,164,165,
+        5,15,0,0,165,35,1,0,0,0,166,167,5,8,0,0,167,168,5,17,0,0,168,37,
+        1,0,0,0,169,170,5,4,0,0,170,172,3,24,12,0,171,173,3,12,6,0,172,171,
+        1,0,0,0,172,173,1,0,0,0,173,174,1,0,0,0,174,176,5,35,0,0,175,177,
+        3,8,4,0,176,175,1,0,0,0,176,177,1,0,0,0,177,178,1,0,0,0,178,180,
+        5,36,0,0,179,181,3,22,11,0,180,179,1,0,0,0,180,181,1,0,0,0,181,182,
+        1,0,0,0,182,183,3,20,10,0,183,39,1,0,0,0,184,186,5,17,0,0,185,187,
+        7,0,0,0,186,185,1,0,0,0,186,187,1,0,0,0,187,188,1,0,0,0,188,189,
+        5,34,0,0,189,197,3,42,21,0,190,192,5,6,0,0,191,190,1,0,0,0,191,192,
+        1,0,0,0,192,193,1,0,0,0,193,194,5,17,0,0,194,195,5,34,0,0,195,197,
+        3,42,21,0,196,184,1,0,0,0,196,191,1,0,0,0,197,41,1,0,0,0,198,199,
+        6,21,-1,0,199,200,5,35,0,0,200,201,3,14,7,0,201,202,5,36,0,0,202,
+        203,3,42,21,16,203,230,1,0,0,0,204,205,5,17,0,0,205,207,5,35,0,0,
+        206,208,3,4,2,0,207,206,1,0,0,0,207,208,1,0,0,0,208,209,1,0,0,0,
+        209,230,5,36,0,0,210,211,5,35,0,0,211,212,3,42,21,0,212,213,5,36,
+        0,0,213,230,1,0,0,0,214,230,5,13,0,0,215,230,5,14,0,0,216,230,5,
+        15,0,0,217,230,5,16,0,0,218,230,5,17,0,0,219,220,5,3,0,0,220,221,
+        3,14,7,0,221,223,5,35,0,0,222,224,3,4,2,0,223,222,1,0,0,0,223,224,
+        1,0,0,0,224,225,1,0,0,0,225,226,5,36,0,0,226,230,1,0,0,0,227,228,
+        7,1,0,0,228,230,3,42,21,1,229,198,1,0,0,0,229,204,1,0,0,0,229,210,
+        1,0,0,0,229,214,1,0,0,0,229,215,1,0,0,0,229,216,1,0,0,0,229,217,
+        1,0,0,0,229,218,1,0,0,0,229,219,1,0,0,0,229,227,1,0,0,0,230,261,
+        1,0,0,0,231,232,10,7,0,0,232,233,5,1,0,0,233,234,3,42,21,0,234,235,
+        5,5,0,0,235,236,3,42,21,8,236,260,1,0,0,0,237,238,10,5,0,0,238,239,
+        7,2,0,0,239,260,3,42,21,6,240,241,10,4,0,0,241,242,7,3,0,0,242,260,
+        3,42,21,5,243,244,10,3,0,0,244,245,7,4,0,0,245,260,3,42,21,4,246,
+        247,10,2,0,0,247,248,7,5,0,0,248,260,3,42,21,3,249,250,10,6,0,0,
+        250,251,5,32,0,0,251,257,5,17,0,0,252,254,5,35,0,0,253,255,3,4,2,
+        0,254,253,1,0,0,0,254,255,1,0,0,0,255,256,1,0,0,0,256,258,5,36,0,
+        0,257,252,1,0,0,0,257,258,1,0,0,0,258,260,1,0,0,0,259,231,1,0,0,
+        0,259,237,1,0,0,0,259,240,1,0,0,0,259,243,1,0,0,0,259,246,1,0,0,
+        0,259,249,1,0,0,0,260,263,1,0,0,0,261,259,1,0,0,0,261,262,1,0,0,
+        0,262,43,1,0,0,0,263,261,1,0,0,0,25,47,59,63,73,84,96,106,113,119,
+        137,145,149,172,176,180,186,191,196,207,223,229,254,257,259,261
     ]
 
 class GemParser ( Parser ):
@@ -1450,6 +1451,10 @@ class GemParser ( Parser ):
             return self.getTypedRuleContext(GemParser.BodyContext,0)
 
 
+        def genericParams(self):
+            return self.getTypedRuleContext(GemParser.GenericParamsContext,0)
+
+
         def params(self):
             return self.getTypedRuleContext(GemParser.ParamsContext,0)
 
@@ -1481,27 +1486,35 @@ class GemParser ( Parser ):
             self.match(GemParser.FUNC)
             self.state = 170
             self.funcName()
-            self.state = 171
+            self.state = 172
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            if _la==26:
+                self.state = 171
+                self.genericParams()
+
+
+            self.state = 174
             self.match(GemParser.LPAREN)
-            self.state = 173
+            self.state = 176
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==6 or _la==17:
-                self.state = 172
+                self.state = 175
                 self.params()
 
 
-            self.state = 175
+            self.state = 178
             self.match(GemParser.RPAREN)
-            self.state = 177
+            self.state = 180
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==39:
-                self.state = 176
+                self.state = 179
                 self.returnArrow()
 
 
-            self.state = 179
+            self.state = 182
             self.body()
         except RecognitionException as re:
             localctx.exception = re
@@ -1566,18 +1579,18 @@ class GemParser ( Parser ):
         self.enterRule(localctx, 40, self.RULE_varAssign)
         self._la = 0 # Token type
         try:
-            self.state = 193
+            self.state = 196
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,16,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,17,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 181
+                self.state = 184
                 self.match(GemParser.ID)
-                self.state = 183
+                self.state = 186
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if (((_la) & ~0x3f) == 0 and ((1 << _la) & 8126464) != 0):
-                    self.state = 182
+                    self.state = 185
                     localctx.op = self._input.LT(1)
                     _la = self._input.LA(1)
                     if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 8126464) != 0)):
@@ -1587,27 +1600,27 @@ class GemParser ( Parser ):
                         self.consume()
 
 
-                self.state = 185
+                self.state = 188
                 self.match(GemParser.ASSIGN)
-                self.state = 186
+                self.state = 189
                 self.expr(0)
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 188
+                self.state = 191
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==6:
-                    self.state = 187
+                    self.state = 190
                     self.match(GemParser.MUTABLE)
 
 
-                self.state = 190
+                self.state = 193
                 self.match(GemParser.ID)
-                self.state = 191
+                self.state = 194
                 self.match(GemParser.ASSIGN)
-                self.state = 192
+                self.state = 195
                 self.expr(0)
                 pass
 
@@ -2008,21 +2021,21 @@ class GemParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 226
+            self.state = 229
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,19,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,20,self._ctx)
             if la_ == 1:
                 localctx = GemParser.CastContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
 
-                self.state = 196
-                self.match(GemParser.LPAREN)
-                self.state = 197
-                self.type_(0)
-                self.state = 198
-                self.match(GemParser.RPAREN)
                 self.state = 199
+                self.match(GemParser.LPAREN)
+                self.state = 200
+                self.type_(0)
+                self.state = 201
+                self.match(GemParser.RPAREN)
+                self.state = 202
                 self.expr(16)
                 pass
 
@@ -2030,19 +2043,19 @@ class GemParser ( Parser ):
                 localctx = GemParser.CallContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 201
-                self.match(GemParser.ID)
-                self.state = 202
-                self.match(GemParser.LPAREN)
                 self.state = 204
+                self.match(GemParser.ID)
+                self.state = 205
+                self.match(GemParser.LPAREN)
+                self.state = 207
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if (((_la) & ~0x3f) == 0 and ((1 << _la) & 36508262408) != 0):
-                    self.state = 203
+                    self.state = 206
                     self.args()
 
 
-                self.state = 206
+                self.state = 209
                 self.match(GemParser.RPAREN)
                 pass
 
@@ -2050,11 +2063,11 @@ class GemParser ( Parser ):
                 localctx = GemParser.ParenContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 207
+                self.state = 210
                 self.match(GemParser.LPAREN)
-                self.state = 208
+                self.state = 211
                 self.expr(0)
-                self.state = 209
+                self.state = 212
                 self.match(GemParser.RPAREN)
                 pass
 
@@ -2062,7 +2075,7 @@ class GemParser ( Parser ):
                 localctx = GemParser.IntContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 211
+                self.state = 214
                 self.match(GemParser.INT)
                 pass
 
@@ -2070,7 +2083,7 @@ class GemParser ( Parser ):
                 localctx = GemParser.FloatContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 212
+                self.state = 215
                 self.match(GemParser.FLOAT)
                 pass
 
@@ -2078,7 +2091,7 @@ class GemParser ( Parser ):
                 localctx = GemParser.StringContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 213
+                self.state = 216
                 self.match(GemParser.STRING)
                 pass
 
@@ -2086,7 +2099,7 @@ class GemParser ( Parser ):
                 localctx = GemParser.BoolContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 214
+                self.state = 217
                 self.match(GemParser.BOOL)
                 pass
 
@@ -2094,7 +2107,7 @@ class GemParser ( Parser ):
                 localctx = GemParser.IdContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 215
+                self.state = 218
                 self.match(GemParser.ID)
                 pass
 
@@ -2102,21 +2115,21 @@ class GemParser ( Parser ):
                 localctx = GemParser.NewContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 216
+                self.state = 219
                 self.match(GemParser.NEW)
-                self.state = 217
-                self.type_(0)
-                self.state = 218
-                self.match(GemParser.LPAREN)
                 self.state = 220
+                self.type_(0)
+                self.state = 221
+                self.match(GemParser.LPAREN)
+                self.state = 223
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if (((_la) & ~0x3f) == 0 and ((1 << _la) & 36508262408) != 0):
-                    self.state = 219
+                    self.state = 222
                     self.args()
 
 
-                self.state = 222
+                self.state = 225
                 self.match(GemParser.RPAREN)
                 pass
 
@@ -2124,7 +2137,7 @@ class GemParser ( Parser ):
                 localctx = GemParser.UnaryContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 224
+                self.state = 227
                 localctx.op = self._input.LT(1)
                 _la = self._input.LA(1)
                 if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 2148270080) != 0)):
@@ -2132,48 +2145,48 @@ class GemParser ( Parser ):
                 else:
                     self._errHandler.reportMatch(self)
                     self.consume()
-                self.state = 225
+                self.state = 228
                 self.expr(1)
                 pass
 
 
             self._ctx.stop = self._input.LT(-1)
-            self.state = 258
+            self.state = 261
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,23,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,24,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     if self._parseListeners is not None:
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
-                    self.state = 256
+                    self.state = 259
                     self._errHandler.sync(self)
-                    la_ = self._interp.adaptivePredict(self._input,22,self._ctx)
+                    la_ = self._interp.adaptivePredict(self._input,23,self._ctx)
                     if la_ == 1:
                         localctx = GemParser.TernaryContext(self, GemParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                        self.state = 228
+                        self.state = 231
                         if not self.precpred(self._ctx, 7):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 7)")
-                        self.state = 229
-                        self.match(GemParser.IF)
-                        self.state = 230
-                        self.expr(0)
-                        self.state = 231
-                        self.match(GemParser.ELSE)
                         self.state = 232
+                        self.match(GemParser.IF)
+                        self.state = 233
+                        self.expr(0)
+                        self.state = 234
+                        self.match(GemParser.ELSE)
+                        self.state = 235
                         self.expr(8)
                         pass
 
                     elif la_ == 2:
                         localctx = GemParser.MultiplicationContext(self, GemParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                        self.state = 234
+                        self.state = 237
                         if not self.precpred(self._ctx, 5):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 5)")
-                        self.state = 235
+                        self.state = 238
                         localctx.op = self._input.LT(1)
                         _la = self._input.LA(1)
                         if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 7340032) != 0)):
@@ -2181,18 +2194,18 @@ class GemParser ( Parser ):
                         else:
                             self._errHandler.reportMatch(self)
                             self.consume()
-                        self.state = 236
+                        self.state = 239
                         self.expr(6)
                         pass
 
                     elif la_ == 3:
                         localctx = GemParser.AdditionContext(self, GemParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                        self.state = 237
+                        self.state = 240
                         if not self.precpred(self._ctx, 4):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 4)")
-                        self.state = 238
+                        self.state = 241
                         localctx.op = self._input.LT(1)
                         _la = self._input.LA(1)
                         if not(_la==18 or _la==19):
@@ -2200,18 +2213,18 @@ class GemParser ( Parser ):
                         else:
                             self._errHandler.reportMatch(self)
                             self.consume()
-                        self.state = 239
+                        self.state = 242
                         self.expr(5)
                         pass
 
                     elif la_ == 4:
                         localctx = GemParser.RelationalContext(self, GemParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                        self.state = 240
+                        self.state = 243
                         if not self.precpred(self._ctx, 3):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
-                        self.state = 241
+                        self.state = 244
                         localctx.op = self._input.LT(1)
                         _la = self._input.LA(1)
                         if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 528482304) != 0)):
@@ -2219,18 +2232,18 @@ class GemParser ( Parser ):
                         else:
                             self._errHandler.reportMatch(self)
                             self.consume()
-                        self.state = 242
+                        self.state = 245
                         self.expr(4)
                         pass
 
                     elif la_ == 5:
                         localctx = GemParser.LogicalContext(self, GemParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                        self.state = 243
+                        self.state = 246
                         if not self.precpred(self._ctx, 2):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 2)")
-                        self.state = 244
+                        self.state = 247
                         localctx.op = self._input.LT(1)
                         _la = self._input.LA(1)
                         if not(_la==29 or _la==30):
@@ -2238,45 +2251,45 @@ class GemParser ( Parser ):
                         else:
                             self._errHandler.reportMatch(self)
                             self.consume()
-                        self.state = 245
+                        self.state = 248
                         self.expr(3)
                         pass
 
                     elif la_ == 6:
                         localctx = GemParser.AttrContext(self, GemParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                        self.state = 246
+                        self.state = 249
                         if not self.precpred(self._ctx, 6):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 6)")
-                        self.state = 247
+                        self.state = 250
                         self.match(GemParser.DOT)
-                        self.state = 248
+                        self.state = 251
                         self.match(GemParser.ID)
-                        self.state = 254
+                        self.state = 257
                         self._errHandler.sync(self)
-                        la_ = self._interp.adaptivePredict(self._input,21,self._ctx)
+                        la_ = self._interp.adaptivePredict(self._input,22,self._ctx)
                         if la_ == 1:
-                            self.state = 249
+                            self.state = 252
                             self.match(GemParser.LPAREN)
-                            self.state = 251
+                            self.state = 254
                             self._errHandler.sync(self)
                             _la = self._input.LA(1)
                             if (((_la) & ~0x3f) == 0 and ((1 << _la) & 36508262408) != 0):
-                                self.state = 250
+                                self.state = 253
                                 self.args()
 
 
-                            self.state = 253
+                            self.state = 256
                             self.match(GemParser.RPAREN)
 
 
                         pass
 
              
-                self.state = 260
+                self.state = 263
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,23,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,24,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
