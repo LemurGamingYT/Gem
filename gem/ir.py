@@ -318,7 +318,8 @@ class Variable(Node):
         return Id(pos, self.type, self.name)
     
     def __str__(self) -> str:
-        return f'{"mut" if self.is_mutable else ""}{self.type} {self.name} = {self.value}'
+        mut_str = 'mut' if self.is_mutable else ''
+        return f'{mut_str}{self.type} {self.name} = {self.value}'
 
 @dataclass
 class Assignment(Node):
@@ -327,7 +328,8 @@ class Assignment(Node):
     op: str | None = None
     
     def __str__(self) -> str:
-        return f'{self.name} {self.op if self.op is not None else ""}= {self.value}'
+        op_str = self.op if self.op is not None else ''
+        return f'{self.name} {op_str}= {self.value}'
 
 @dataclass
 class Elseif(Node):

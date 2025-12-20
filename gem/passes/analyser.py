@@ -73,6 +73,8 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), self.scope.type_map.get('string'), 's')
         ])
         
+        self.declare_intrinsic('__null', self.scope.type_map.get('pointer'), [])
+        
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(
             ir.Position.zero(), ret_type, name, params
@@ -189,7 +191,8 @@ class AnalyserPass(CompilerPass):
             symbol = cast(ir.Symbol, self.scope.symbol_table.get(base_name))
             base = cast(ir.Function, symbol.value)
             base.overloads.append(func)
-        else:
+        
+        if not node.is_generic:
             self.scope.symbol_table.add(ir.Symbol(func.name, self.scope.type_map.get('function'), func))
         
         body = node.body

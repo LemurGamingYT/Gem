@@ -384,6 +384,8 @@ class CodeGenerationPass(CompilerPass):
             case 'string.length':
                 string = args[0]
                 return get_struct_field(self.builder, string, 1, 'string.length')
+            case '__null':
+                return NULL()
     
     def visit_Call(self, node: ir.Call):
         args = [self.visit(arg) for arg in node.args]

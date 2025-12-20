@@ -6,6 +6,8 @@ extern malloc
 extern free
 extern calloc
 extern realloc
+extern strtol
+extern strtof
 
 
 fn gem_alloc(int size) -> pointer {
@@ -65,21 +67,19 @@ fn float.to_string(float f) -> string {
 
 fn string.to_string(string s) -> string { return s }
 fn bool.to_string(bool b) -> string { return "true" if b else "false" }
+fn print_string(string s) {
+    puts(s.ptr)
+}
+
+fn print_literal(string s) {
+    __print_pointer_no_newline(s.ptr)
+}
+
 fn print(string value) {
-    puts(value.ptr)
+    print_string(value)
 }
 
-fn string.clone(string s) -> string {
-    return new string(s.ptr, s.length)
-}
-
-fn string.destroy(string& s) {
-    gem_free(s.ptr)
-}
-
-fn input(string prompt) -> string {
-    __print_pointer_no_newline(prompt.ptr)
-
+fn input() -> string {
     buf = __buffer(256)
     fgets(buf, 256, __stdin())
     
@@ -88,6 +88,25 @@ fn input(string prompt) -> string {
     return new string(buf, input_len - 1)
 }
 
-fn input() -> string {
-    return input("")
+fn input(string prompt) -> string {
+    print_literal(prompt)
+    return input()
+}
+
+/* string attributes */
+
+fn string.clone(string s) -> string {
+    return new string(s.ptr, s.length)
+}
+
+fn string.parse_int(string s) -> int {
+    return strtol(s.ptr, __null(), 10)
+}
+
+fn string.parse_float(string s) -> float {
+    return strtof(s.ptr, __null())
+}
+
+fn string.destroy(string& s) {
+    gem_free(s.ptr)
 }
