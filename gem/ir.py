@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
+from typing import Optional, Any, Union
 from abc import ABC, abstractmethod
-from typing import Optional, Any
 from sys import exit as sys_exit
 from logging import error, info
 from pathlib import Path
@@ -45,22 +45,32 @@ class Symbol:
 @dataclass
 class SymbolTable:
     symbols: dict[str, Symbol] = field(default_factory=dict)
-
+    parent: Union['SymbolTable', None] = None
+    
     def get(self, name: str):
+        if self.parent is not None and (symbol := self.parent.get(name)) is not None:
+            return symbol
+        
         return self.symbols.get(name)
-                 
+    
     def add(self, symbol: Symbol):
         self.symbols[symbol.name] = symbol
     
     def has(self, name: str):
+        if self.parent is not None and self.parent.has(name):
+            return True
+        
         return name in self.symbols
                  
     def remove(self, name: str):
+        if self.parent is not None and self.parent.has(name):
+            return self.parent.remove(name)
+        
         if self.has(name):
             del self.symbols[name]
-    
-    def clone(self):
-        return SymbolTable(self.symbols.copy())
+            return True
+        
+        return False
     
     def merge(self, other: 'SymbolTable'):
         self.symbols.update(other.symbols)
@@ -68,7 +78,7 @@ class SymbolTable:
 @dataclass
 class TypeMap:
     types: dict[str, 'Type'] = field(default_factory=dict)
-                 
+    
     def tryget(self, name: str):
         return self.types.get(name)
     
@@ -108,7 +118,7 @@ class Scope:
 
     def __post_init__(self):
         if self.parent is not None:
-            self.symbol_table = self.parent.symbol_table.clone()
+            self.symbol_table = SymbolTable(parent=self.parent.symbol_table)
             self.type_map = self.parent.type_map.clone()
             
             self.dependencies = self.parent.dependencies
@@ -138,6 +148,7 @@ class CompileOptions:
     clean: bool = False
     optimize: bool = False
     debug: bool = False
+    no_stdlib: bool = False
 
 @dataclass
 class File:

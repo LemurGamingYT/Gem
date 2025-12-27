@@ -67,16 +67,15 @@ fn float.to_string(float f) -> string {
 
 fn string.to_string(string s) -> string { return s }
 fn bool.to_string(bool b) -> string { return "true" if b else "false" }
-fn print_string(string s) {
+
+/* built-in functions */
+
+fn print(string s) {
     puts(s.ptr)
 }
 
 fn print_literal(string s) {
     __print_pointer_no_newline(s.ptr)
-}
-
-fn print(string value) {
-    print_string(value)
 }
 
 fn input() -> string {

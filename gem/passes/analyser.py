@@ -328,7 +328,7 @@ class AnalyserPass(CompilerPass):
         right = self.visit(node.right)
         left_type, right_type = left.type, right.type
         callee = f'{left_type}.{node.op}.{right_type}'
-        if callee not in self.scope.symbol_table.symbols:
+        if not self.scope.symbol_table.has(callee):
             node.pos.comptime_error(self.file, f'invalid operation \'{node.op}\' for types \'{left_type}\' and \'{right_type}\'')
         
         return self.visit(ir.Call(node.pos, left_type, callee, [

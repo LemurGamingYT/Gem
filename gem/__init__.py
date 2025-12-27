@@ -17,7 +17,9 @@ def parse(file: ir.File):
     info(f'PARSING FILE {file.path.as_posix()}')
     ir_builder = IRBuilder(file)
     program = ir_builder.build()
-    program.nodes.insert(0, ir.Use(program.pos, 'core'))
+    if not file.options.no_stdlib:
+        program.nodes.insert(0, ir.Use(program.pos, 'core'))
+    
     return program
 
 def compile_to_str(file: ir.File):
@@ -146,6 +148,6 @@ Available actions:\n{actions_str}""")
             print(f'File \'{file_path}\' is not a file')
             sys_exit(1)
         
-        options = ir.CompileOptions(self.option('clean'), self.option('optimize'), self.option('debug'))
+        options = ir.CompileOptions(self.option('clean'), self.option('optimize'), self.option('debug'), self.option('no-stdlib'))
         file = ir.File(path, ir.Scope(), options)
         compile_to_exe(file)
