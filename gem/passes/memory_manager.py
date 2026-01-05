@@ -32,18 +32,11 @@ destroyed."""
     node: ir.Node
 
 
-class MemoryManager(CompilerPass):
+class MemoryManagerPass(CompilerPass):
     def __init__(self, file):
         super().__init__(file)
 
         self.can_extract = True
-    
-    @contextmanager
-    def child_scope(self):
-        old_scope = self.scope
-        self.scope = self.scope.make_child()
-        yield
-        self.scope = old_scope
     
     @contextmanager
     def no_extract(self):
@@ -58,7 +51,7 @@ class MemoryManager(CompilerPass):
 
         info(f'Creating owned object: {var_name} of type {node.type}')
 
-        self.scope.symbol_table.add(ir.Symbol(var_name, node.type, OwnedObject(node)))
+        self.scope.symbol_table.add(ir.Symbol(var_name, node.type, OwnedObject(node), self.file))
         return var.to_id(node.pos)
 
     def destroy_owned_value(self, pos: ir.Position, symbol: ir.Symbol):
@@ -132,7 +125,9 @@ class MemoryManager(CompilerPass):
             old_scope = self.scope
             self.scope = self.scope.make_child()
             for param in node.params:
-                self.scope.symbol_table.add(ir.Symbol(param.name, param.type, OwnedObject(param, True), param.is_mutable))
+                self.scope.symbol_table.add(ir.Symbol(
+                    param.name, param.type, OwnedObject(param, True), self.file, is_mutable=param.is_mutable
+                ))
             
             body = self.visit_Body(body)
             
@@ -151,10 +146,16 @@ class MemoryManager(CompilerPass):
             if isinstance(symbol.value, OwnedObject):
                 info(f'Transfering ownership of {value.name} to {node.name}')
                 symbol.value.moved = True
-                self.scope.symbol_table.add(ir.Symbol(node.name, value.type, OwnedObject(value), node.is_mutable))
+                self.scope.symbol_table.add(ir.Symbol(
+                    node.name, value.type, OwnedObject(value), self.file, is_mutable=node.is_mutable
+                ))
+                
                 return ir.Variable(node.pos, value.type, node.name, value, node.is_mutable, node.op)
 
-        self.scope.symbol_table.add(ir.Symbol(node.name, value.type, OwnedObject(value), node.is_mutable))
+        self.scope.symbol_table.add(ir.Symbol(
+            node.name, value.type, OwnedObject(value), self.file, is_mutable=node.is_mutable
+        ))
+        
         return ir.Variable(node.pos, value.type, node.name, value, node.is_mutable)
     
     def visit_Assignment(self, node: ir.Assignment):
@@ -167,10 +168,16 @@ class MemoryManager(CompilerPass):
             if isinstance(symbol.value, OwnedObject):
                 info(f'Transfering ownership of {value.name} to {node.name}')
                 symbol.value.moved = True
-                self.scope.symbol_table.add(ir.Symbol(node.name, value.type, OwnedObject(value), assign_symbol.is_mutable))
+                self.scope.symbol_table.add(ir.Symbol(
+                    node.name, value.type, OwnedObject(value), self.file, is_mutable=assign_symbol.is_mutable
+                ))
+                
                 return ir.Assignment(node.pos, value.type, node.name, value, node.op)
         
-        self.scope.symbol_table.add(ir.Symbol(node.name, value.type, OwnedObject(value), assign_symbol.is_mutable))
+        self.scope.symbol_table.add(ir.Symbol(
+            node.name, value.type, OwnedObject(value), self.file, is_mutable=assign_symbol.is_mutable
+        ))
+        
         return ir.Assignment(node.pos, value.type, node.name, value, node.op)
     
     def visit_Elseif(self, node: ir.Elseif):

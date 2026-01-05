@@ -1,5 +1,7 @@
+from typing import Any, cast, override
 from contextlib import contextmanager
-from typing import Any, cast
+from importlib import import_module
+from pathlib import Path
 from logging import info
 
 from llvmlite import ir as lir, binding as llvm
@@ -58,14 +60,12 @@ class CodeGenerationPass(CompilerPass):
         self.while_test_block = None
     
     @contextmanager
+    @override
     def child_scope(self, builder: lir.IRBuilder):
         old_builder = self.builder
-        old_scope = self.scope
         self.builder = builder
-        self.scope = self.scope.make_child()
-        yield
+        yield super().child_scope()
         self.builder = old_builder
-        self.scope = old_scope
     
     def visit_Program(self, node: ir.Program):
         for stmt in node.nodes:
@@ -117,7 +117,7 @@ class CodeGenerationPass(CompilerPass):
             for overload in node.overloads:
                 self.visit(overload)
             
-            self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node))
+            self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node, self.file))
             return node
         
         ret_type = self.visit(node.ret_type)
@@ -134,7 +134,10 @@ class CodeGenerationPass(CompilerPass):
             
             func.linkage = 'external'
         
-        self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), func))
+        self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), func, self.file))
+        for overload in node.overloads:
+            self.visit(overload)
+        
         if node.body is not None:
             builder = lir.IRBuilder(func.append_basic_block('entry'))
             with self.child_scope(builder):
@@ -142,15 +145,12 @@ class CodeGenerationPass(CompilerPass):
                     ptr = self.builder.alloca(self.visit(param.type), name=f'{param.name}_ptr')
                     self.builder.store(func.args[i], ptr)
                     
-                    self.scope.symbol_table.add(ir.Symbol(param.name, param.type, ptr, param.is_mutable))
+                    self.scope.symbol_table.add(ir.Symbol(param.name, param.type, ptr, self.file, is_mutable=param.is_mutable))
                 
                 self.visit(node.body)
                 
                 if ret_type == lir.VoidType() and not cast(lir.Block, self.builder.block).is_terminated:
                     self.builder.ret_void()
-        
-        for overload in node.overloads:
-            self.visit(overload)
         
         return func
     
@@ -158,7 +158,7 @@ class CodeGenerationPass(CompilerPass):
         value = self.visit(node.value)
         ptr = self.builder.alloca(value.type, name=f'{node.name}_ptr')
         self.builder.store(value, ptr)
-        self.scope.symbol_table.add(ir.Symbol(node.name, value.type, ptr, node.is_mutable))
+        self.scope.symbol_table.add(ir.Symbol(node.name, value.type, ptr, self.file, is_mutable=node.is_mutable))
         return ptr
     
     def visit_Assignment(self, node: ir.Assignment):
@@ -258,28 +258,55 @@ class CodeGenerationPass(CompilerPass):
     def visit_Continue(self, _):
         self.builder.branch(self.while_test_block)
     
+    def use_py(self, py_file: Path, lib_name: str):
+        file = ir.File(py_file, ir.Scope(), self.file.options)
+        codegen = CodeGenerationPass(file)
+        
+        module = import_module(f'gem.stdlib.{lib_name}.{py_file.stem}')
+        instance = getattr(module, lib_name)(file)
+        for obj in instance.attrs.values():
+            codegen.visit_Function(obj)
+            
+        for symbol in file.scope.symbol_table.symbols.values():
+            func = symbol.value
+            if isinstance(func, lir.Function) and func.linkage != 'external':
+                new_func = lir.Function(self.module, func.function_type, func.name)
+                new_func.linkage = 'external'
+        
+        self.scope.merge(file.scope)
+        
+        info(f'Imported python stdlib file {lib_name}')
+    
+    def use_gem(self, gem_file: Path, lib_name: str):
+        from gem import compile_to_obj
+        
+        file = ir.File(gem_file, ir.Scope(), self.file.options)
+        obj_file = compile_to_obj(file)
+        
+        for symbol in file.scope.symbol_table.symbols.values():
+            func = symbol.value
+            if isinstance(func, lir.Function) and func.linkage != 'external':
+                new_func = lir.Function(self.module, func.function_type, func.name)
+                new_func.linkage = 'external'
+            elif isinstance(func, ir.Function) and func.is_generic:
+                self.visit(func)
+        
+        self.file.codegen_data.object_files.append(obj_file)
+        self.scope.merge(file.scope)
+        
+        info(f'Imported gem library {lib_name}')
+    
     def visit_Use(self, node: ir.Use):
         stdlib_path = ir.STDLIB_PATH / node.path
         if stdlib_path.exists():
             if self.file.path.stem == stdlib_path.stem:
                 return node
             
+            if (py_file := stdlib_path / f'{node.path}_instrinsics.py').exists():
+                self.use_py(py_file, node.path)
+            
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
-                from gem import compile_to_obj
-                
-                file = ir.File(gem_file, ir.Scope(), self.file.options)
-                obj_file = compile_to_obj(file)
-                
-                for symbol in file.scope.symbol_table.symbols.values():
-                    func = symbol.value
-                    if isinstance(func, lir.Function) and func.linkage != 'external':
-                        new_func = lir.Function(self.module, func.function_type, func.name)
-                        new_func.linkage = 'external'
-                
-                self.file.codegen_data.object_files.append(obj_file)
-                self.scope.merge(file.scope)
-                
-                info(f'Imported gem library {node.path}')
+                self.use_gem(gem_file, node.path)
         
         return node
     
@@ -397,6 +424,9 @@ class CodeGenerationPass(CompilerPass):
         
         func = symbol.value
         if isinstance(func, ir.Function):
+            if not func.is_generic:
+                func.pos.comptime_error(symbol.source, f'non-generic function \'{func.name}\' not defined')
+            
             func = self.visit(func)
         
         return self.builder.call(func, args, node.callee)

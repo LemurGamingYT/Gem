@@ -1,6 +1,7 @@
-from contextlib import contextmanager
-from typing import cast, Optional
+from importlib import import_module
+from pathlib import Path
 from logging import info
+from typing import cast
 
 from gem.passes import CompilerPass
 from gem import ir
@@ -78,23 +79,12 @@ class AnalyserPass(CompilerPass):
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(
             ir.Position.zero(), ret_type, name, params
-        )))
+        ), self.file))
         
         info(f'Declared intrinsic {name}')
     
-    @contextmanager
-    def child_scope(self):
-        old_scope = self.scope
-        self.scope = self.scope.make_child()
-        yield
-        self.scope = old_scope
-    
     def visit_Program(self, node: ir.Program):
-        nodes = []
-        for stmt in node.nodes:
-            nodes.append(self.visit(stmt))
-        
-        return ir.Program(node.pos, nodes)
+        return ir.Program(node.pos, [self.visit(stmt) for stmt in node.nodes])
     
     def visit_Type(self, node: ir.Type):
         t = self.scope.type_map.get(node.type)
@@ -146,22 +136,19 @@ class AnalyserPass(CompilerPass):
         
         return ir.While(node.pos, cond, body)
     
-    def visit_Function(self, node: ir.Function, callsite: Optional[ir.Call] = None):
+    def visit_Function(self, node: ir.Function):
         # if self.scope.parent is not None:
         #     node.pos.comptime_error(self.file, 'functions can only be defined at the top level')
         
-        if node.is_generic and callsite is None:
-            self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node))
-            info(f'Compiled generic function {node.name}')
+        if node.is_generic:
+            self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node, self.file))
             return node
         
-        generic_map = node.create_generic_map(callsite.args if callsite is not None else [])
-        ret_type = self.visit(node.replace_generic(node.ret_type, generic_map))
-        preprocessed_params = [
-            ir.Param(param.pos, node.replace_generic(param.type, generic_map), param.name)
+        ret_type = self.visit(node.ret_type)
+        params = [
+            ir.Param(param.pos, param.type, param.name)
             for param in node.params
         ]
-        params = [self.visit(param) for param in preprocessed_params]
         
         overloads = [self.visit(overload) for overload in node.overloads]
         extend_type = self.visit(node.extend_type) if node.extend_type is not None else None
@@ -172,10 +159,6 @@ class AnalyserPass(CompilerPass):
                 flags.static = True
             
             func_name = f'{extend_type}.{func_name}'
-        
-        if node.is_generic:
-            generics_str = ', '.join(str(type) for type in generic_map.values())
-            func_name += f'<{generics_str}>'
         
         base_name = func_name
         is_overload = self.scope.symbol_table.has(base_name)
@@ -192,22 +175,17 @@ class AnalyserPass(CompilerPass):
             base = cast(ir.Function, symbol.value)
             base.overloads.append(func)
         
-        if not node.is_generic:
-            self.scope.symbol_table.add(ir.Symbol(func.name, self.scope.type_map.get('function'), func))
+        self.scope.symbol_table.add(ir.Symbol(func.name, self.scope.type_map.get('function'), func, self.file))
         
         body = node.body
         if body is not None:
             with self.child_scope():
                 for param in params:
-                    self.scope.symbol_table.add(ir.Symbol(param.name, param.type, param, param.is_mutable))
+                    self.scope.symbol_table.add(ir.Symbol(
+                        param.name, param.type, param, self.file, is_mutable=param.is_mutable
+                    ))
                 
                 func.body = self.visit(body)
-        
-        if node.is_generic:
-            node.overloads.append(func)
-            
-            generic_map_str = ', '.join(f'{k}={v}' for k, v in generic_map.items())
-            info(f'Compiled generic function {node.name} with the following parameters {generic_map_str}')
         
         return func
     
@@ -216,16 +194,27 @@ class AnalyserPass(CompilerPass):
         if self.scope.symbol_table.has(node.name):
             return self.visit(ir.Assignment(node.pos, value.type, node.name, value, node.op))
         
-        self.scope.symbol_table.add(ir.Symbol(node.name, value.type, value, node.is_mutable))
+        self.scope.symbol_table.add(ir.Symbol(node.name, value.type, value, self.file, is_mutable=node.is_mutable))
         return ir.Variable(node.pos, value.type, node.name, value, node.is_mutable)
     
     def visit_Assignment(self, node: ir.Assignment):
         symbol = cast(ir.Symbol, self.scope.symbol_table.get(node.name))
         if symbol.is_mutable:
-            node.pos.comptime_error(self.file, f'\'{node.name}\' is not mutable')
+            node.pos.comptime_error(symbol.source, f'\'{node.name}\' is not mutable')
         
         symbol.value = node.value
         return self
+    
+    def use_gem(self, gem_file: Path, lib_name: str):
+        from gem import parse
+        
+        file = ir.File(gem_file, ir.Scope(), self.file.options)
+        program = parse(file)
+        AnalyserPass.run(file, program)
+        
+        self.scope.merge(file.scope)
+        
+        info(f'Imported gem library {lib_name}')
     
     def visit_Use(self, node: ir.Use):
         stdlib_path = ir.STDLIB_PATH / node.path
@@ -233,16 +222,13 @@ class AnalyserPass(CompilerPass):
             if self.file.path.stem == stdlib_path.stem:
                 return node
             
+            if (py_file := stdlib_path / f'{node.path}_instrinsics.py').exists():
+                module = import_module(f'gem.stdlib.{node.path}.{py_file.stem}')
+                instance = getattr(module, node.path)(self.file)
+                instance.add_to_scope()
+            
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
-                from gem import parse
-                
-                file = ir.File(gem_file, ir.Scope(), self.file.options)
-                program = parse(file)
-                AnalyserPass.run(file, program)
-                
-                self.scope.merge(file.scope)
-                
-                info(f'Imported gem library {node.path}')
+                self.use_gem(gem_file, node.path)
         
         return node
     
@@ -316,7 +302,7 @@ class AnalyserPass(CompilerPass):
             new_args = [self.fix_arg(arg, param) for arg, param in zip(args, overload.params)]
             callsite = overload.call(node.pos, new_args)
             if overload.is_generic:
-                overload = self.visit_Function(overload, callsite)
+                overload = self.visit_Function(overload)
                 callsite = overload.call(node.pos, new_args)
             
             return callsite

@@ -70,8 +70,8 @@ fn bool.to_string(bool b) -> string { return "true" if b else "false" }
 
 /* built-in functions */
 
-fn print(string s) {
-    puts(s.ptr)
+fn print<T>(T value) {
+    puts(value.to_string().ptr)
 }
 
 fn print_literal(string s) {

@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from typing import Any, TypeVar
 from logging import warning
 from abc import ABC
@@ -10,6 +11,13 @@ NodeType = TypeVar('NodeType', bound=Node)
 class CompilerPass(ABC):
     def __init__(self, file: File):
         self.file = file
+    
+    @contextmanager
+    def child_scope(self):
+        old_scope = self.scope
+        self.scope = self.scope.make_child()
+        yield
+        self.scope = old_scope
     
     @property
     def scope(self):

@@ -3,8 +3,9 @@ from subprocess import run
 from logging import info
 from pathlib import Path
 
+from gem.passes.generics_resolver import GenericsResolverPass
 from gem.passes.code_generation import CodeGenerationPass
-from gem.passes.memory_manager import MemoryManager
+from gem.passes.memory_manager import MemoryManagerPass
 from gem.passes.analyser import AnalyserPass
 from gem.ir_builder import IRBuilder
 from gem import ir
@@ -12,6 +13,8 @@ from gem import ir
 
 VERSION = '0.0.1'
 CRUNTIME_DIR = Path(__file__).parent / 'cruntime'
+
+PASSES = [AnalyserPass, GenericsResolverPass, MemoryManagerPass, CodeGenerationPass]
 
 def parse(file: ir.File):
     info(f'PARSING FILE {file.path.as_posix()}')
@@ -28,18 +31,13 @@ def compile_to_str(file: ir.File):
     if file.options.debug:
         ir_file.write_text(str(program))
     
-    info(f'ANALYSING FILE {file.path.as_posix()}')
-    analysed_program = AnalyserPass.run(file, program)
-    if file.options.debug:
-        ir_file.write_text(str(analysed_program))
+    for cls in PASSES:
+        info(f'Running {cls.__name__} on file {file.path.as_posix()}')
+        program = cls.run(file, program)
+        if file.options.debug:
+            ir_file.write_text(str(program))
     
-    info(f'MAKING {file.path.as_posix()} MEMORY SAFE')
-    memory_safe_program = MemoryManager.run(file, analysed_program)
-    if file.options.debug:
-        ir_file.write_text(str(memory_safe_program))
-    
-    info(f'GENERATING CODE FOR FILE {file.path.as_posix()}')
-    return CodeGenerationPass.run(file, memory_safe_program)
+    return program
 
 def compile_to_ir(file: ir.File):
     code = compile_to_str(file)
@@ -148,6 +146,9 @@ Available actions:\n{actions_str}""")
             print(f'File \'{file_path}\' is not a file')
             sys_exit(1)
         
-        options = ir.CompileOptions(self.option('clean'), self.option('optimize'), self.option('debug'), self.option('no-stdlib'))
+        options = ir.CompileOptions(
+            self.option('clean'), self.option('optimize'), self.option('debug'), self.option('no-stdlib')
+        )
+        
         file = ir.File(path, ir.Scope(), options)
         compile_to_exe(file)

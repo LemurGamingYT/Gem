@@ -40,6 +40,7 @@ class Symbol:
     name: str
     type: 'Type'
     value: Any
+    source: 'File'
     is_mutable: bool = False
 
 @dataclass
