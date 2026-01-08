@@ -423,11 +423,7 @@ class CodeGenerationPass(CompilerPass):
         assert symbol is not None
         
         func = symbol.value
-        if isinstance(func, ir.Function):
-            if not func.is_generic:
-                func.pos.comptime_error(symbol.source, f'non-generic function \'{func.name}\' not defined')
-            
-            func = self.visit(func)
+        assert isinstance(func, lir.Function), f'function {node.callee} is not defined or is generic'
         
         return self.builder.call(func, args, node.callee)
     

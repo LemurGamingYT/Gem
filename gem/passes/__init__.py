@@ -1,9 +1,10 @@
 from contextlib import contextmanager
 from typing import Any, TypeVar
+from dataclasses import fields
 from logging import warning
 from abc import ABC
 
-from gem.ir import File, Node, Program, Scope
+from gem.ir import File, Node, Program, Scope, Type
 
 
 NodeType = TypeVar('NodeType', bound=Node)
@@ -37,6 +38,23 @@ class CompilerPass(ABC):
         if hasattr(self, method_name):
             method = getattr(self, method_name)
             return method(node)
+        elif isinstance(node, Node):
+            return self.visit_children(node)
         else:
-            warning(f'No method {method_name}, returning unchanged node')
             return node
+    
+    def visit_children(self, node: NodeType) -> NodeType | Any:
+        node_fields = {}
+        for field in fields(node):
+            if not field.init:
+                continue
+            
+            value = getattr(node, field.name)
+            if isinstance(value, Node):
+                node_fields[field.name] = self.visit(value)
+            elif isinstance(value, list):
+                node_fields[field.name] = [self.visit(element) for element in value]
+            else:
+                node_fields[field.name] = value
+        
+        return node.__class__(**node_fields)

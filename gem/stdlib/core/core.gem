@@ -53,6 +53,10 @@ fn string.new(int length) -> string {
     return __create_string(ptr_copy, length)
 }
 
+fn string.destroy(string& s) {
+    gem_free(s.ptr)
+}
+
 fn int.to_string(int i) -> string {
     buf = __buffer(16)
     length = __format_int(buf, 16, i)
@@ -70,8 +74,8 @@ fn bool.to_string(bool b) -> string { return "true" if b else "false" }
 
 /* built-in functions */
 
-fn print<T>(T value) {
-    puts(value.to_string().ptr)
+fn print(string value) {
+    puts(value.ptr)
 }
 
 fn print_literal(string s) {
@@ -104,8 +108,4 @@ fn string.parse_int(string s) -> int {
 
 fn string.parse_float(string s) -> float {
     return strtof(s.ptr, __null())
-}
-
-fn string.destroy(string& s) {
-    gem_free(s.ptr)
 }

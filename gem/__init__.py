@@ -3,7 +3,6 @@ from subprocess import run
 from logging import info
 from pathlib import Path
 
-from gem.passes.generics_resolver import GenericsResolverPass
 from gem.passes.code_generation import CodeGenerationPass
 from gem.passes.memory_manager import MemoryManagerPass
 from gem.passes.analyser import AnalyserPass
@@ -14,7 +13,7 @@ from gem import ir
 VERSION = '0.0.1'
 CRUNTIME_DIR = Path(__file__).parent / 'cruntime'
 
-PASSES = [AnalyserPass, GenericsResolverPass, MemoryManagerPass, CodeGenerationPass]
+PASSES = [AnalyserPass, MemoryManagerPass, CodeGenerationPass]
 
 def parse(file: ir.File):
     info(f'PARSING FILE {file.path.as_posix()}')

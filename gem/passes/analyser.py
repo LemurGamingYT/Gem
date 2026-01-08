@@ -76,6 +76,8 @@ class AnalyserPass(CompilerPass):
         
         self.declare_intrinsic('__null', self.scope.type_map.get('pointer'), [])
         
+        self.expanded_generics = []
+        
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(
             ir.Position.zero(), ret_type, name, params
@@ -84,7 +86,7 @@ class AnalyserPass(CompilerPass):
         info(f'Declared intrinsic {name}')
     
     def visit_Program(self, node: ir.Program):
-        return ir.Program(node.pos, [self.visit(stmt) for stmt in node.nodes])
+        return ir.Program(node.pos, [self.visit(stmt) for stmt in node.nodes] + self.expanded_generics)
     
     def visit_Type(self, node: ir.Type):
         t = self.scope.type_map.get(node.type)
@@ -136,22 +138,24 @@ class AnalyserPass(CompilerPass):
         
         return ir.While(node.pos, cond, body)
     
-    def visit_Function(self, node: ir.Function):
+    def visit_Function(self, node: ir.Function, callsite: ir.Call | None = None):
         # if self.scope.parent is not None:
         #     node.pos.comptime_error(self.file, 'functions can only be defined at the top level')
         
-        if node.is_generic:
+        if node.is_generic and callsite is None:
             self.scope.symbol_table.add(ir.Symbol(node.name, self.scope.type_map.get('function'), node, self.file))
             return node
         
-        ret_type = self.visit(node.ret_type)
+        generic_map = node.create_generic_map(callsite.args if callsite is not None else [])
+        ret_type = self.visit(node.replace_generic(node.ret_type, generic_map))
         params = [
-            ir.Param(param.pos, param.type, param.name)
+            ir.Param(param.pos, self.visit(node.replace_generic(param.type, generic_map)), param.name)
             for param in node.params
         ]
         
         overloads = [self.visit(overload) for overload in node.overloads]
-        extend_type = self.visit(node.extend_type) if node.extend_type is not None else None
+        extend_type = self.visit(node.replace_generic(node.extend_type, generic_map))\
+            if node.extend_type is not None else None
         flags = node.flags
         func_name = node.name
         if extend_type is not None:
@@ -161,13 +165,17 @@ class AnalyserPass(CompilerPass):
             func_name = f'{extend_type}.{func_name}'
         
         base_name = func_name
-        is_overload = self.scope.symbol_table.has(base_name)
+        is_overload = self.scope.symbol_table.has(base_name) and not node.is_generic
         if is_overload:
             if len(params) > 0:
                 param_types_str = ''.join(f'.{param.type}' for param in params)
                 func_name += f'.overload{param_types_str}'
             else:
                 func_name += '.overload.noargs'
+        
+        if node.is_generic:
+            generic_map_str = '<' + ', '.join(str(type) for type in generic_map.values()) + '>'
+            func_name += generic_map_str
         
         func = ir.Function(node.pos, ret_type, func_name, params, node.body, overloads, flags)
         if is_overload:
@@ -186,6 +194,10 @@ class AnalyserPass(CompilerPass):
                     ))
                 
                 func.body = self.visit(body)
+        
+        if node.is_generic:
+            node.overloads.append(func)
+            self.expanded_generics.append(func)
         
         return func
     
@@ -302,7 +314,7 @@ class AnalyserPass(CompilerPass):
             new_args = [self.fix_arg(arg, param) for arg, param in zip(args, overload.params)]
             callsite = overload.call(node.pos, new_args)
             if overload.is_generic:
-                overload = self.visit_Function(overload)
+                overload = self.visit_Function(overload, callsite)
                 callsite = overload.call(node.pos, new_args)
             
             return callsite
