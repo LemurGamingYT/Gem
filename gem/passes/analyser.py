@@ -171,7 +171,7 @@ class AnalyserPass(CompilerPass):
                 param_types_str = ''.join(f'.{param.type}' for param in params)
                 func_name += f'.overload{param_types_str}'
             else:
-                func_name += '.overload.noargs'
+                func_name += '.overload'
         
         if node.is_generic:
             generic_map_str = '<' + ', '.join(str(type) for type in generic_map.values()) + '>'
