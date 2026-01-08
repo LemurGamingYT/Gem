@@ -302,7 +302,7 @@ class CodeGenerationPass(CompilerPass):
             if self.file.path.stem == stdlib_path.stem:
                 return node
             
-            if (py_file := stdlib_path / f'{node.path}_instrinsics.py').exists():
+            if (py_file := stdlib_path / f'{node.path}.py').exists():
                 self.use_py(py_file, node.path)
             
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():

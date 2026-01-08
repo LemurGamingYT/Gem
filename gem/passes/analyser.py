@@ -233,7 +233,7 @@ class AnalyserPass(CompilerPass):
             if self.file.path.stem == stdlib_path.stem:
                 return node
             
-            if (py_file := stdlib_path / f'{node.path}_instrinsics.py').exists():
+            if (py_file := stdlib_path / f'{node.path}.py').exists():
                 module = import_module(f'gem.stdlib.{node.path}.{py_file.stem}')
                 instance = getattr(module, node.path)(self.file)
                 instance.add_to_scope()
