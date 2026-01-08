@@ -174,8 +174,7 @@ class AnalyserPass(CompilerPass):
                 func_name += '.overload'
         
         if node.is_generic:
-            generic_map_str = '<' + ', '.join(str(type) for type in generic_map.values()) + '>'
-            func_name += generic_map_str
+            func_name += '<' + ', '.join(str(type) for type in generic_map.values()) + '>'
         
         func = ir.Function(node.pos, ret_type, func_name, params, node.body, overloads, flags)
         if is_overload:
