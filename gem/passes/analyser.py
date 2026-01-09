@@ -213,8 +213,15 @@ class AnalyserPass(CompilerPass):
         if symbol.is_mutable:
             node.pos.comptime_error(symbol.source, f'\'{node.name}\' is not mutable')
         
-        symbol.value = node.value
-        return self
+        value = node.value
+        if node.op is not None:
+            value = self.visit(ir.Operation(
+                node.pos, node.type, node.op, ir.Id(node.value.pos, node.type, node.name),
+                value
+            ))
+        
+        symbol.value = value
+        return ir.Assignment(node.pos, node.type, node.name, value)
     
     def use_gem(self, gem_file: Path, lib_name: str):
         from gem import parse

@@ -13,7 +13,7 @@ from gem import ir
 VERSION = '0.0.1'
 CRUNTIME_DIR = Path(__file__).parent / 'cruntime'
 
-PASSES = [AnalyserPass, MemoryManagerPass, CodeGenerationPass]
+PASSES = [AnalyserPass, MemoryManagerPass]
 
 def parse(file: ir.File):
     info(f'PARSING FILE {file.path.as_posix()}')
@@ -36,7 +36,7 @@ def compile_to_str(file: ir.File):
         if file.options.debug:
             ir_file.write_text(str(program))
     
-    return program
+    return CodeGenerationPass.run(file, program)
 
 def compile_to_ir(file: ir.File):
     code = compile_to_str(file)

@@ -50,6 +50,7 @@ class CodeGenerationPass(CompilerPass):
         self.builder = lir.IRBuilder()
         
         self.codegen_types = {}
+        # self.params = {}
         
         self.string_type = define_identified_type('string', [
             lir.PointerType(lir.IntType(8)),
@@ -125,6 +126,8 @@ class CodeGenerationPass(CompilerPass):
         func = lir.Function(self.module, func_type, node.name)
         for i, param in enumerate(node.params):
             func.args[i].name = f'{param.name}_param'
+            
+            # self.params[param.name] = param
         
         if node.flags.extern:
             cobjects = CRegistry.get_all_cobjects()
@@ -328,7 +331,13 @@ class CodeGenerationPass(CompilerPass):
 
     def visit_Id(self, node: ir.Id):
         symbol = cast(ir.Symbol, self.scope.symbol_table.get(node.name))
-        return self.builder.load(symbol.value, node.name)
+        value = self.builder.load(symbol.value, node.name)
+        # if node.name in self.params:
+        #     param = self.params[node.name]
+        #     if isinstance(param.type, ir.ReferenceType):
+        #         value = self.builder.load(value, node.name)
+        
+        return value
     
     def visit_Bracketed(self, node: ir.Bracketed):
         return self.visit(node.value)
@@ -410,6 +419,9 @@ class CodeGenerationPass(CompilerPass):
                     return create_string_constant(self.module, 'out of memory', out_of_memory_msg_name)
             case 'string.length':
                 string = args[0]
+                if isinstance(getattr(string, 'type'), lir.PointerType):
+                    return get_allocated_struct_field_value(self.builder, string, 1, 'string.length')
+                
                 return get_struct_field(self.builder, string, 1, 'string.length')
             case '__null':
                 return NULL()
