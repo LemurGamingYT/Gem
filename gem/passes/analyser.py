@@ -106,11 +106,10 @@ class AnalyserPass(CompilerPass):
         return ir.Param(node.pos, self.visit(node.type), node.name, node.is_mutable)
     
     def visit_Body(self, node: ir.Body):
-        nodes = []
         for stmt in node.nodes:
-            nodes.append(self.visit(stmt))
+            self.scope.body_nodes.append(self.visit(stmt))
         
-        return ir.Body(node.pos, node.type, nodes)
+        return ir.Body(node.pos, node.type, self.scope.body_nodes)
     
     def visit_Elseif(self, node: ir.Elseif):
         cond = self.visit(node.cond)

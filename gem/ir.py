@@ -441,7 +441,7 @@ class Bool(Node):
     value: bool
     
     def __str__(self) -> str:
-        return f'{self.value}'
+        return f'{str(self.value).lower()}'
 
 @dataclass
 class Id(Node):
