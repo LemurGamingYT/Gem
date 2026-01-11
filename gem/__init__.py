@@ -127,23 +127,22 @@ Available actions:\n{actions_str}""")
         
         return False
     
-    def action_build(self):
-        file_path = self.arg(1)
+    def action_build(self, file_path: str | None = None):
         if file_path is None:
-            print('Usage: gem build <file>')
-            print('No file')
-            sys_exit(1)
+            file_path = self.arg(1)
+        
+        if file_path is None:
+            self.error("""Usage: gem build <file>
+No file""")
         
         path = Path(file_path)
         if not path.exists():
-            print('Usage: gem build <file>')
-            print(f'File \'{file_path}\' does not exist')
-            sys_exit(1)
+            self.error(f"""Usage: gem build <file>
+File \'{path}\' does not exist""")
         
         if not path.is_file():
-            print('Usage: gem build <file>')
-            print(f'File \'{file_path}\' is not a file')
-            sys_exit(1)
+            self.error(f"""Usage: gem build <file>
+File \'{path}\' is not a file""")
         
         options = ir.CompileOptions(
             self.option('clean'), self.option('optimize'), self.option('debug'), self.option('no-stdlib')
