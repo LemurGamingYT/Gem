@@ -145,7 +145,7 @@ No test named \'{test_name}\'""")
         exe_file = self.action_build(str(path))
         run(f'{exe_file}', shell=True)
     
-    def action_build(self, file_path: str | None = None):
+    def action_build(self, file_path: str | None = None, options: ir.CompileOptions | None = None):
         if file_path is None:
             file_path = self.arg(1)
         
@@ -162,7 +162,7 @@ File \'{path}\' does not exist""")
             self.error(f"""Usage: gem build <file>
 File \'{path}\' is not a file""")
         
-        options = ir.CompileOptions(
+        options = options or ir.CompileOptions(
             self.option('clean'), self.option('optimize'), self.option('debug'), self.option('no-stdlib')
         )
         
