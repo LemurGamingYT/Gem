@@ -379,12 +379,6 @@ class CodeGenerationPass(CompilerPass):
                     fmt = create_string_constant(self.module, '%f', 'float_fmt', self.builder)
                 
                 return self.builder.call(snprintf, [args[0], args[1], fmt, args[2]], '__format_float')
-            case 'int.+.int':
-                return self.builder.add(args[0], args[1], 'int.+.int')
-            case 'int.-.int':
-                return self.builder.sub(args[0], args[1], 'int.-.int')
-            case 'float.+.float':
-                return self.builder.fadd(args[0], args[1], 'float.+.float')
             case 'string.ptr':
                 string = args[0]
                 if isinstance(getattr(string, 'type'), lir.PointerType):
@@ -425,6 +419,60 @@ class CodeGenerationPass(CompilerPass):
                 return get_struct_field(self.builder, string, 1, 'string.length')
             case '__null':
                 return NULL()
+            case 'int.+.int':
+                return self.builder.add(args[0], args[1], 'int.+.int')
+            case 'int.-.int':
+                return self.builder.sub(args[0], args[1], 'int.-.int')
+            case 'int.*.int':
+                return self.builder.mul(args[0], args[1], 'int.*.int')
+            case 'int./.int':
+                return self.builder.sdiv(args[0], args[1], 'int./.int')
+            case 'int.%.int':
+                return self.builder.srem(args[0], args[1], 'int.%.int')
+            case 'int.==.int':
+                return self.builder.icmp_signed('==', args[0], args[1], 'int.==.int')
+            case 'int.!=.int':
+                return self.builder.icmp_signed('!=', args[0], args[1], 'int.!=.int')
+            case 'int.>.int':
+                return self.builder.icmp_signed('>', args[0], args[1], 'int.>.int')
+            case 'int.<.int':
+                return self.builder.icmp_signed('<', args[0], args[1], 'int.<.int')
+            case 'int.>=.int':
+                return self.builder.icmp_signed('>=', args[0], args[1], 'int.>=.int')
+            case 'int.<=.int':
+                return self.builder.icmp_signed('<=', args[0], args[1], 'int.<=.int')
+            case 'float.+.float':
+                return self.builder.fadd(args[0], args[1], 'float.+.float')
+            case 'float.-.float':
+                return self.builder.fsub(args[0], args[1], 'float.-.float')
+            case 'float.*.float':
+                return self.builder.fmul(args[0], args[1], 'float.*.float')
+            case 'float./.float':
+                return self.builder.fdiv(args[0], args[1], 'float./.float')
+            case 'float.%.float':
+                return self.builder.frem(args[0], args[1], 'float.%.float')
+            case 'float.==.float':
+                return self.builder.fcmp_ordered('==', args[0], args[1], 'float.==.float')
+            case 'float.!=.float':
+                return self.builder.fcmp_ordered('!=', args[0], args[1], 'float.!=.float')
+            case 'float.>.float':
+                return self.builder.fcmp_ordered('>', args[0], args[1], 'float.>.float')
+            case 'float.<.float':
+                return self.builder.fcmp_ordered('<', args[0], args[1], 'float.<.float')
+            case 'float.>=.float':
+                return self.builder.fcmp_ordered('>=', args[0], args[1], 'float.>=.float')
+            case 'float.<=.float':
+                return self.builder.fcmp_ordered('<=', args[0], args[1], 'float.<=.float')
+            case 'bool.==.bool':
+                return self.builder.icmp_signed('==', args[0], args[1], 'bool.==.bool')
+            case 'bool.!=.bool':
+                return self.builder.icmp_signed('!=', args[0], args[1], 'bool.!=.bool')
+            case 'bool.&&.bool':
+                return self.builder.and_(args[0], args[1], 'bool.&&.bool')
+            case 'bool.||.bool':
+                return self.builder.or_(args[0], args[1], 'bool.||.bool')
+            case '!.bool':
+                return self.builder.not_(args[0], '!.bool')
     
     def visit_Call(self, node: ir.Call):
         args = [self.visit(arg) for arg in node.args]

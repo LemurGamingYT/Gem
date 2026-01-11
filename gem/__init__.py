@@ -11,7 +11,9 @@ from gem import ir
 
 
 VERSION = '0.0.1'
-CRUNTIME_DIR = Path(__file__).parent / 'cruntime'
+GEM_DIR = Path(__file__).parent
+CRUNTIME_DIR = GEM_DIR / 'cruntime'
+TESTS_DIR = GEM_DIR / 'tests'
 
 PASSES = [AnalyserPass, MemoryManagerPass]
 
@@ -84,6 +86,8 @@ def compile_to_exe(file: ir.File):
     if file.options.clean:
         for obj in object_files:
             obj.unlink()
+    
+    return exe_file
 
 class ArgParser:
     def __init__(self, args: list[str]):
@@ -127,6 +131,20 @@ Available actions:\n{actions_str}""")
         
         return False
     
+    def action_test(self):
+        test_name = self.arg(1)
+        if test_name is None:
+            self.error("""Usage: gem test <name>
+No test name""")
+        
+        path = TESTS_DIR / f'{test_name}.gem'
+        if not path.exists():
+            self.error(f"""Usage: gem test <name>
+No test named \'{test_name}\'""")
+        
+        exe_file = self.action_build(str(path))
+        run(f'{exe_file}', shell=True)
+    
     def action_build(self, file_path: str | None = None):
         if file_path is None:
             file_path = self.arg(1)
@@ -149,4 +167,4 @@ File \'{path}\' is not a file""")
         )
         
         file = ir.File(path, ir.Scope(), options)
-        compile_to_exe(file)
+        return compile_to_exe(file)

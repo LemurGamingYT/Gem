@@ -36,20 +36,140 @@ class AnalyserPass(CompilerPass):
             ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'f')
         ])
         
-        self.declare_intrinsic('int.+.int', self.scope.type_map.get('int'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'a'),
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'b')
-        ])
+        self.declare_op_intrinsic(
+            '+',
+            self.scope.type_map.get('int'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
         
-        self.declare_intrinsic('int.-.int', self.scope.type_map.get('int'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'a'),
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('int'), 'b')
-        ])
+        self.declare_op_intrinsic(
+            '-',
+            self.scope.type_map.get('int'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
         
-        self.declare_intrinsic('float.+.float', self.scope.type_map.get('float'), [
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'a'),
-            ir.Param(ir.Position.zero(), self.scope.type_map.get('float'), 'b')
-        ])
+        self.declare_op_intrinsic(
+            '*',
+            self.scope.type_map.get('int'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '/',
+            self.scope.type_map.get('int'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '%',
+            self.scope.type_map.get('int'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '==',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '!=',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '>',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '<',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '>=',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '<=',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('int'), self.scope.type_map.get('int')
+        )
+        
+        self.declare_op_intrinsic(
+            '+',
+            self.scope.type_map.get('float'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '-',
+            self.scope.type_map.get('float'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '*',
+            self.scope.type_map.get('float'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '/',
+            self.scope.type_map.get('float'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '%',
+            self.scope.type_map.get('float'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '==',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '!=',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '>',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '<',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '>=',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '<=',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('float'), self.scope.type_map.get('float')
+        )
+        
+        self.declare_op_intrinsic(
+            '==',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('bool'), self.scope.type_map.get('bool')
+        )
+        
+        self.declare_op_intrinsic(
+            '!=',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('bool'), self.scope.type_map.get('bool')
+        )
+        
+        self.declare_op_intrinsic(
+            '&&',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('bool'), self.scope.type_map.get('bool')
+        )
+        
+        self.declare_op_intrinsic(
+            '||',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('bool'), self.scope.type_map.get('bool')
+        )
+        
+        self.declare_op_intrinsic(
+            '!',
+            self.scope.type_map.get('bool'), self.scope.type_map.get('bool')
+        )
         
         self.declare_intrinsic('string.ptr', self.scope.type_map.get('pointer'), [
             ir.Param(ir.Position.zero(), self.scope.type_map.get('string'), 'str')
@@ -82,6 +202,17 @@ class AnalyserPass(CompilerPass):
         ), self.file))
         
         info(f'Declared intrinsic {name}')
+    
+    def declare_op_intrinsic(self, op: str, ret_type: ir.Type, a_type: ir.Type, b_type: ir.Type | None = None):
+        if b_type is None:
+            self.declare_intrinsic(f'{op}.{a_type}', ret_type, [
+                ir.Param(ir.Position.zero(), a_type, 'a')
+            ])
+        else:
+            self.declare_intrinsic(f'{a_type}.{op}.{b_type}', ret_type, [
+                ir.Param(ir.Position.zero(), a_type, 'a'),
+                ir.Param(ir.Position.zero(), b_type, 'b')
+            ])
     
     def visit_Program(self, node: ir.Program):
         for stmt in node.nodes:
@@ -333,9 +464,16 @@ class AnalyserPass(CompilerPass):
         if not self.scope.symbol_table.has(callee):
             node.pos.comptime_error(self.file, f'invalid operation \'{node.op}\' for types \'{left_type}\' and \'{right_type}\'')
         
-        return self.visit(ir.Call(node.pos, left_type, callee, [
-            ir.Arg(node.pos, left_type, left), ir.Arg(node.pos, right_type, right
-        )]))
+        return self.visit(ir.Call(node.pos, left_type, callee, [left.to_arg(), right.to_arg()]))
+    
+    def visit_UnaryOperation(self, node: ir.UnaryOperation):
+        value = self.visit(node.value)
+        value_type = value.type
+        callee = f'{node.op}.{value_type}'
+        if not self.scope.symbol_table.has(callee):
+            node.pos.comptime_error(self.file, f'invalid operation \'{node.op}\' on type \'{value_type}\'')
+        
+        return self.visit(ir.Call(node.pos, value_type, callee, [value.to_arg()]))
     
     def visit_Attribute(self, node: ir.Attribute):
         value = self.visit(node.value)

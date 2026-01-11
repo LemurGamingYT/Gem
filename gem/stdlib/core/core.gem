@@ -96,6 +96,18 @@ fn input(string prompt) -> string {
     return input()
 }
 
+fn assert(bool condition) {
+    if !condition {
+        puts("error: assertion failed".ptr)
+    }
+}
+
+fn assert(bool condition, string error_message) {
+    if !condition {
+        puts(error_message.ptr)
+    }
+}
+
 /* string attributes */
 
 fn string.clone(string s) -> string {
