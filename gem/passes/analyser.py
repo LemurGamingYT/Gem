@@ -76,8 +76,6 @@ class AnalyserPass(CompilerPass):
         
         self.declare_intrinsic('__null', self.scope.type_map.get('pointer'), [])
         
-        self.expanded_generics = []
-        
     def declare_intrinsic(self, name: str, ret_type: ir.Type, params: list[ir.Param]):
         self.scope.symbol_table.add(ir.Symbol(name, self.scope.type_map.get('function'), ir.Function(
             ir.Position.zero(), ret_type, name, params
@@ -86,7 +84,10 @@ class AnalyserPass(CompilerPass):
         info(f'Declared intrinsic {name}')
     
     def visit_Program(self, node: ir.Program):
-        return ir.Program(node.pos, [self.visit(stmt) for stmt in node.nodes] + self.expanded_generics)
+        for stmt in node.nodes:
+            self.scope.body_nodes.append(self.visit(stmt))
+        
+        return ir.Program(node.pos, self.scope.body_nodes)
     
     def visit_Type(self, node: ir.Type):
         t = self.scope.type_map.get(node.type)
@@ -192,10 +193,6 @@ class AnalyserPass(CompilerPass):
                     ))
                 
                 func.body = self.visit(body)
-        
-        if node.is_generic:
-            node.overloads.append(func)
-            self.expanded_generics.append(func)
         
         return func
     
@@ -320,6 +317,8 @@ class AnalyserPass(CompilerPass):
             callsite = overload.call(node.pos, new_args)
             if overload.is_generic:
                 overload = self.visit_Function(overload, callsite)
+                self.file.toplevel_scope.body_nodes.append(overload)
+                
                 callsite = overload.call(node.pos, new_args)
             
             return callsite

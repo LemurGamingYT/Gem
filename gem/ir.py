@@ -159,6 +159,14 @@ class File:
     codegen_data: CodegenData = field(default_factory=CodegenData)
     
     @property
+    def toplevel_scope(self):
+        scope = self.scope
+        while scope.parent is not None:
+            scope = scope.parent
+        
+        return scope
+    
+    @property
     def unique_name(self):
         self._unique_name_idx += 1
         return f'_{self._unique_name_idx}'
@@ -537,6 +545,13 @@ class Ref(Node):
     
     def __str__(self):
         return f'&{self.name}'
+
+@dataclass
+class Deref:
+    name: str
+    
+    def __str__(self) -> str:
+        return f'*{self.name}'
 
 @dataclass
 class Comment(Node):

@@ -16,7 +16,7 @@ CRUNTIME_DIR = Path(__file__).parent / 'cruntime'
 PASSES = [AnalyserPass, MemoryManagerPass]
 
 def parse(file: ir.File):
-    info(f'PARSING FILE {file.path.as_posix()}')
+    info(f'Parsing file {file.path.as_posix()}')
     ir_builder = IRBuilder(file)
     program = ir_builder.build()
     if not file.options.no_stdlib:

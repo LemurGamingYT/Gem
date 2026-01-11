@@ -272,7 +272,7 @@ class CodeGenerationPass(CompilerPass):
             
         for symbol in file.scope.symbol_table.symbols.values():
             func = symbol.value
-            if isinstance(func, lir.Function) and func.linkage != 'external':
+            if isinstance(func, lir.Function):
                 new_func = lir.Function(self.module, func.function_type, func.name)
                 new_func.linkage = 'external'
         
@@ -288,7 +288,7 @@ class CodeGenerationPass(CompilerPass):
         
         for symbol in file.scope.symbol_table.symbols.values():
             func = symbol.value
-            if isinstance(func, lir.Function) and func.linkage != 'external':
+            if isinstance(func, lir.Function):
                 new_func = lir.Function(self.module, func.function_type, func.name)
                 new_func.linkage = 'external'
             elif isinstance(func, ir.Function) and func.is_generic:
