@@ -3,9 +3,10 @@ from subprocess import run
 from logging import info
 from pathlib import Path
 
+from gem.passes.name_type_resolver import NameAndTypeResolverPass
 from gem.passes.code_generation import CodeGenerationPass
 from gem.passes.memory_manager import MemoryManagerPass
-from gem.passes.analyser import AnalyserPass
+from gem.passes.node_expansion import NodeExpansionPass
 from gem.ir_builder import IRBuilder
 from gem import ir
 
@@ -15,7 +16,7 @@ GEM_DIR = Path(__file__).parent
 CRUNTIME_DIR = GEM_DIR / 'cruntime'
 TESTS_DIR = GEM_DIR / 'tests'
 
-PASSES = [AnalyserPass, MemoryManagerPass]
+PASSES = [NameAndTypeResolverPass, NodeExpansionPass, MemoryManagerPass]
 
 def parse(file: ir.File):
     info(f'Parsing file {file.path.as_posix()}')
@@ -26,18 +27,25 @@ def parse(file: ir.File):
     
     return program
 
-def compile_to_str(file: ir.File):
+def run_compile_passes(file: ir.File):
     program = parse(file)
-    ir_file = file.path.with_suffix('.gir')
+    ir_file = file.path.with_stem(f'{file.path.stem}_base').with_suffix('.gir')
     if file.options.debug:
         ir_file.write_text(str(program))
     
-    for cls in PASSES:
-        info(f'Running {cls.__name__} on file {file.path.as_posix()}')
+    for i, cls in enumerate(PASSES, start=1):
+        info(f'Running pass {i}: {cls.__name__} on file {file.path.as_posix()}')
         program = cls.run(file, program)
         if file.options.debug:
+            ir_file = file.path.with_stem(f'{file.path.stem}_pass{i}').with_suffix('.gir')
             ir_file.write_text(str(program))
+        
+        info(f'Successfully ran pass {i}: {cls.__name__} on file {file.path.as_posix()}')
     
+    return program
+
+def compile_to_str(file: ir.File):
+    program = run_compile_passes(file)
     return CodeGenerationPass.run(file, program)
 
 def compile_to_ir(file: ir.File):

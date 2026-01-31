@@ -1,10 +1,10 @@
 from contextlib import contextmanager
 from typing import Any, TypeVar
 from dataclasses import fields
-from logging import warning
+from logging import info
 from abc import ABC
 
-from gem.ir import File, Node, Program, Scope, Type
+from gem.ir import File, Node, Program, Scope
 
 
 NodeType = TypeVar('NodeType', bound=Node)

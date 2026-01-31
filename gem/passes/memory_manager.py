@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from logging import info
 from typing import cast
 
-from gem.passes.analyser import AnalyserPass
 from gem.passes import CompilerPass
 from gem import ir
 
@@ -33,6 +32,11 @@ destroyed."""
 
 
 class MemoryManagerPass(CompilerPass):
+    """Memory safety is key for a program to run properly. This pass extracts out values that need to be freed (i.e. have a
+    `.destroy()` method) which allows the value to be freed at the end of the scope. If values are shared (i.e. used in
+    multiple places and passed around in something like structs) then this pass assigns the value to a `Ref` object automatically
+    to ensure memory safety."""
+    
     def __init__(self, file):
         super().__init__(file)
 
@@ -139,7 +143,6 @@ class MemoryManagerPass(CompilerPass):
         )
 
     def visit_Variable(self, node: ir.Variable):
-        # don't extract a variable's value (the variable owns it's value)
         value = self.visit(node.value)
         if isinstance(value, ir.Id):
             symbol = cast(ir.Symbol, self.scope.symbol_table.get(value.name))
@@ -207,11 +210,10 @@ class MemoryManagerPass(CompilerPass):
                 return node
             
             if (gem_file := stdlib_path / f'{node.path}.gem').exists():
-                from gem import parse
+                from gem import run_compile_passes
                 
                 file = ir.File(gem_file, ir.Scope(), self.file.options)
-                program = parse(file)
-                AnalyserPass.run(file, program)
+                run_compile_passes(file)
                 
                 self.scope.merge(file.scope)
                 

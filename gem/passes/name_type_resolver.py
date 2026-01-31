@@ -1,13 +1,17 @@
 from importlib import import_module
-from pathlib import Path
 from logging import info
+from pathlib import Path
 from typing import cast
 
 from gem.passes import CompilerPass
 from gem import ir
 
 
-class AnalyserPass(CompilerPass):
+class NameAndTypeResolverPass(CompilerPass):
+    """As gem is a statically-typed language, types must be checked at compile-time. Also, any identifiers that are used
+    must be checked where they are defined or if they are defined otherwise the code generation step will not work. This
+    pass also uses any library that the program does and resolves those identifiers too."""
+    
     def __init__(self, file: ir.File):
         super().__init__(file)
         
@@ -215,10 +219,11 @@ class AnalyserPass(CompilerPass):
             ])
     
     def visit_Program(self, node: ir.Program):
+        nodes = []
         for stmt in node.nodes:
-            self.scope.body_nodes.append(self.visit(stmt))
+            nodes.append(self.visit(stmt))
         
-        return ir.Program(node.pos, self.scope.body_nodes)
+        return ir.Program(node.pos, nodes)
     
     def visit_Type(self, node: ir.Type):
         t = self.scope.type_map.get(node.type)
@@ -238,10 +243,11 @@ class AnalyserPass(CompilerPass):
         return ir.Param(node.pos, self.visit(node.type), node.name, node.is_mutable)
     
     def visit_Body(self, node: ir.Body):
+        nodes = []
         for stmt in node.nodes:
-            self.scope.body_nodes.append(self.visit(stmt))
+            nodes.append(self.visit(stmt))
         
-        return ir.Body(node.pos, node.type, self.scope.body_nodes)
+        return ir.Body(node.pos, node.type, nodes)
     
     def visit_Elseif(self, node: ir.Elseif):
         cond = self.visit(node.cond)
@@ -340,22 +346,13 @@ class AnalyserPass(CompilerPass):
         if symbol.is_mutable:
             node.pos.comptime_error(symbol.source, f'\'{node.name}\' is not mutable')
         
-        value = node.value
-        if node.op is not None:
-            value = self.visit(ir.Operation(
-                node.pos, node.type, node.op, ir.Id(node.value.pos, node.type, node.name),
-                value
-            ))
-        
-        symbol.value = value
-        return ir.Assignment(node.pos, node.type, node.name, value)
+        return ir.Assignment(node.pos, node.type, node.name, node.value)
     
     def use_gem(self, gem_file: Path, lib_name: str):
-        from gem import parse
+        from gem import run_compile_passes
         
         file = ir.File(gem_file, ir.Scope(), self.file.options)
-        program = parse(file)
-        AnalyserPass.run(file, program)
+        run_compile_passes(file)
         
         self.scope.merge(file.scope)
         
@@ -388,13 +385,7 @@ class AnalyserPass(CompilerPass):
         return ir.Float(node.pos, self.visit(node.type), node.value)
     
     def visit_String(self, node: ir.String):
-        return self.visit(ir.Call(node.pos, self.visit(node.type), 'string.new', [
-            ir.StringLiteral(node.pos, self.scope.type_map.get('pointer'), node.value).to_arg(),
-            ir.Int(node.pos, self.scope.type_map.get('int'), len(node.value)).to_arg()
-        ]))
-    
-    def visit_StringLiteral(self, node: ir.StringLiteral):
-        return ir.StringLiteral(node.pos, self.scope.type_map.get('pointer'), node.value)
+        return ir.String(node.pos, self.visit(node.type), node.value)
     
     def visit_Bool(self, node: ir.Bool):
         return ir.Bool(node.pos, self.visit(node.type), node.value)
@@ -461,19 +452,23 @@ class AnalyserPass(CompilerPass):
         right = self.visit(node.right)
         left_type, right_type = left.type, right.type
         callee = f'{left_type}.{node.op}.{right_type}'
-        if not self.scope.symbol_table.has(callee):
+        symbol = self.scope.symbol_table.get(callee)
+        if symbol is None:
             node.pos.comptime_error(self.file, f'invalid operation \'{node.op}\' for types \'{left_type}\' and \'{right_type}\'')
         
-        return self.visit(ir.Call(node.pos, left_type, callee, [left.to_arg(), right.to_arg()]))
+        func = cast(ir.Function, symbol.value)
+        return ir.Operation(node.pos, func.ret_type, node.op, left, right)
     
     def visit_UnaryOperation(self, node: ir.UnaryOperation):
         value = self.visit(node.value)
         value_type = value.type
         callee = f'{node.op}.{value_type}'
-        if not self.scope.symbol_table.has(callee):
+        symbol = self.scope.symbol_table.get(callee)
+        if symbol is None:
             node.pos.comptime_error(self.file, f'invalid operation \'{node.op}\' on type \'{value_type}\'')
         
-        return self.visit(ir.Call(node.pos, value_type, callee, [value.to_arg()]))
+        func = cast(ir.Function, symbol.value)
+        return ir.UnaryOperation(node.pos, func.ret_type, node.op, value)
     
     def visit_Attribute(self, node: ir.Attribute):
         value = self.visit(node.value)
@@ -482,16 +477,13 @@ class AnalyserPass(CompilerPass):
             value_type = value_type.type
         
         callee = f'{value_type}.{node.attr}'
-        args = [value.to_arg()] + (node.args or [])
         symbol = self.scope.symbol_table.get(callee)
         if symbol is None:
             node.pos.comptime_error(self.file, f'no attribute \'{node.attr}\' for type \'{value.type}\'')
         
         func = cast(ir.Function, symbol.value)
-        if func.flags.static:
-            args = args[1:]
-        
-        return self.visit(ir.Call(node.pos, value.type, callee, args))
+        args = [self.visit(arg) for arg in node.args] if node.args is not None else None
+        return ir.Attribute(node.pos, func.ret_type, value, node.attr, args)
     
     def visit_New(self, node: ir.New):
         new_type = self.visit_Type(node.new_type)
@@ -500,9 +492,9 @@ class AnalyserPass(CompilerPass):
         if symbol is None:
             node.pos.comptime_error(self.file, f'no constructor for type \'{new_type}\'')
         
-        return self.visit(ir.Attribute(
-            node.pos, new_type, ir.Id(node.new_type.pos, new_type, str(new_type)), 'new', node.args
-        ))
+        func = cast(ir.Function, symbol.value)
+        args = [self.visit(arg) for arg in node.args]
+        return ir.New(node.pos, func.ret_type, new_type, args)
     
     def visit_Ref(self, node: ir.Ref):
         symbol = self.scope.symbol_table.get(node.name)
